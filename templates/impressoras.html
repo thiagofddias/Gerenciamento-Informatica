@@ -1,0 +1,1009 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/CSS/redirecionadores.css">
+    <link rel="stylesheet" href="/static/CSS/principal.css">
+    <link rel="stylesheet" href="/static/css/impressoras.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+
+    <script>
+        var planta = "{{ session['planta'] }}";
+    </script>
+    <script src="{{ url_for('static', filename='cores.js') }}"></script>
+    <link rel="icon" href="/static/images/logo.ico">
+    <title>Impressoras</title>
+</head>
+
+<body>
+    <div class="menu">
+        <a href="/menu" class="logo"><img src="#" alt="" id="logo_image"></a>
+
+        <div class="icones_menu">
+            <a href="" id="retornaLink">Retornar</a>
+        </div>
+
+        <script>
+            const retorna = document.getElementById("retornaLink");
+            retorna.addEventListener("click", function (event) {
+                event.preventDefault();
+                window.history.back();
+            });
+        </script>
+    </div>
+
+    <br><br>
+
+
+
+    <!-- -- C A D A S T R O ---------------------------------------------------------------------------------------------------------------------------------------------------------- -->
+
+    <button class="botao" id="cadastroImpressora">
+        Cadastro de Impressoras
+    </button>
+
+    <div id="addimpressora" class="popup">
+        <div class="modal" id="modalimpressoraadd">
+            <button class="fechar"><i class="bi bi-x-circle-fill" id="IconeFechar"></i></button>
+
+            <h1>Cadastro de Impressora</h1>
+
+            <form class="formulario">
+
+                <label id="icon" for="name"><i class="bi bi-postcard"></i></label>
+                <input type="text" name="nome" id="nome" placeholder="Nome" autocomplete="off">
+
+                <label id="icon" for="modelo"><i class="bi bi-printer-fill"></i></label>
+                <input type="text" name="modelo" id="modelo" placeholder="Modelo" autocomplete="off">
+
+                <label id="icon" for="local"><i class="bi bi-geo-fill"></i></label>
+                <input type="text" name="local" id="local" placeholder="Local" autocomplete="off">
+
+                <label id="icon" for="macAdress"><i class="bi bi-reception-4"></i></label>
+                <input type="text" name="macAdress" id="macAdress" placeholder="MAC Adress" autocomplete="off">
+
+                <label id="icon" for="SerialNumber"><i class="bi bi-123"></i></label>
+                <input type="text" name="SerialNumber" id="SerialNumber" placeholder="Número de Série" autocomplete="off">
+
+                <label id="icon" for="Link"><i class="bi bi-link"></i></label>
+                <input type="text" name="Link" id="link" placeholder="Link" autocomplete="off">
+
+                <label for="plantaAdd" hidden><i class="bi bi-building"></i></label>
+                <input type="text" placeholder="Planta" id="plantaAdd" autocomplete="off" hidden>
+            </form>
+
+            <button type="submit" class="demaisbutton" id="cadastrar">Cadastrar</button>
+        </div>
+    </div>
+
+    <!-- ABRIR FORMULÁRIO -->
+
+    <script>
+        window.addEventListener('DOMContentLoaded', (event) => {
+            const abrir1 = document.querySelector('#cadastroImpressora');
+            const modal = document.querySelector('#addimpressora');
+            const fechar = document.querySelector('.fechar');
+
+            abrir1.addEventListener('click', function () {
+                modal.style.display = 'flex';
+            });
+
+            fechar.addEventListener('click', function () {
+                modal.style.display = 'none';
+            });
+
+            window.addEventListener('click', function (e) {
+                if (e.target == modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        });
+    </script>
+
+    <!-- CADASTRO -->
+
+    <script>
+        document.getElementById("cadastrar").addEventListener("click", function (e) {
+            e.preventDefault();
+
+            var nome = document.getElementById("nome").value;
+            var modelo = document.getElementById("modelo").value;
+            var local = document.getElementById("local").value;
+            var link = document.getElementById("link").value;
+
+            fetch('/add_impressora', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    nome: nome,
+                    modelo: modelo,
+                    local: local,
+                    link: link,
+                    planta: planta
+                })
+
+            })
+                .then(function (response) {
+                    if (response.ok) {
+                        return response.json();
+                    }
+                    throw new Error('Erro na resposta do servidor.');
+                })
+                .then(function (data) {
+                    alert(data.status);
+                    recarregar();
+                })
+                .catch(function (error) {
+                    console.error('Erro:', error);
+                });
+        });
+    </script>
+
+
+    <!-- -- L I S T A ---------------------------------------------------------------------------------------------------------------------------------------------------------- -->
+
+    <button class="botao" id="listaImpr">
+        Lista de Impressoras
+    </button>
+
+    <div id="listaImprModal" class="popup">
+        <div class="modal">
+            <div id="tabela">
+                <table>
+                    <thead class="fixed-header">
+                        <tr>
+                            <th>Nome</th>
+                            <th>Modelo</th>
+                            <th>Local</th>
+                            <th>Link</th>
+                            <th hidden>Planta</th>
+                            <th>Editar</th>
+                            <th>Remover</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body">
+                        {% for registro in historico %}
+                        <tr>
+                            <td>{{ registro.Nome }}</td>
+                            <td>{{ registro.Modelo }}</td>
+                            <td>{{ registro.Local}}</td>
+                            <td>{{ registro.Link}}</td>
+                            <td hidden>{{ registro.Planta}}</td>
+                            <td>
+                                <button class="editar">
+                                    <i class="bi bi-pencil-square"></i>
+                                </button>
+                            </td>
+
+                            <td>
+                                <button class="remover">
+                                    <i class="bi bi-trash3"></i>
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                <script>
+                    function historico() {
+                        axios.get('/impressoras')
+                            .then(response => {
+                                const imp = response.data;
+                                const tableBody = document.getElementById('table-body');
+                                let html = '';
+
+                                // Chama a função impressorasBD
+                                const registros = impressorasBD(imp);
+
+                                for (let i = 0; i < registros.length; i++) {
+                                    const registro = registros[i];
+                                    html += `<tr>
+                                        <td>${registro['Nome']}</td>
+                                        <td>${registro['Modelo']}</td>
+                                        <td>${registro['Local']}</td>
+                                        <td>${registro['Link']}</td>
+                                        <td>${registro['Planta']}</td>
+                                    </tr>`;
+                                }
+
+                                tableBody.innerHTML = html;
+                            })
+                            .catch(error => {
+                                console.error(error);
+                            });
+                    }
+
+                    // Função que retorna registros formatados
+                    function impressorasBD(imp) {
+                        // Lógica para formatar os registros se necessário
+                        return imp;
+                    }
+                </script>
+            </div>
+        </div>
+    </div>
+
+
+    <script>
+        window.addEventListener('DOMContentLoaded', (event) => {
+            const abrir2 = document.querySelector('#listaImpr');
+            const modal2 = document.querySelector('#listaImprModal');
+            const fechar2 = document.querySelector('.fechar');
+
+            abrir2.addEventListener('click', function () {
+                modal2.style.display = 'flex';
+            });
+
+            fechar2.addEventListener('click', function () {
+                modal2.style.display = 'none';
+            });
+
+            window.addEventListener('click', function (e) {
+                if (e.target == modal2) {
+                    modal2.style.display = 'none';
+                }
+            });
+        });
+    </script>
+
+
+    <!-- EDITAR OS DADOS -->
+
+    <div id="editImpressoraPopup" class="popup">
+        <div class="modal" id="editImpressoraModal">
+            <button class="fechar" id="fecharesseaq"><i class="bi bi-x-circle-fill" id="IconeFechar"></i></button>
+
+            <h1>Editar Impressora</h1>
+
+            <form class="formulario">
+
+                <div id="matriculaEditDiv">
+                    <label id="icon" for="name"><i class="bi bi-postcard"></i></label>
+                    <input type="text" name="nomeimpressoraeditar" id="nomeimpressoraeditar" placeholder="Nome"
+                        autocomplete="off">
+                    <button type="button" class="btn" id="buscar">Buscar</button>
+                </div>
+
+
+                <label id="icon" for="name"><i class="bi bi-postcard"></i></label>
+                <input type="text" name="nome" id="nome_edit" placeholder="Nome">
+
+                <label id="icon" for="matricula"><i class="bi bi-printer-fill"></i></label>
+                <input type="text" name="matricula" id="modelo_edit" placeholder="Modelo">
+
+                <label id="icon" for="name"><i class="bi bi-geo-fill"></i></i></label>
+                <input type="text" name="senha" id="local_edit" placeholder="Local">
+
+                <label for="privilegio"><i class="bi bi-link"></i></i></label>
+                <input type="text" placeholder="Link" required id="link_edit" autocomplete="off">
+
+                <label for="planta"><i class="bi bi-building"></i></label>
+                <input type="text" placeholder="Planta" required id="planta_edit" autocomplete="off">
+            </form>
+
+            <button type="submit" id="editar_impr" class="btn">Editar</button>
+        </div>
+    </div>
+
+    <!-- BUSCA DE DADOS -->
+
+    <script>
+        window.addEventListener('DOMContentLoaded', (event) => {
+            const abrir3 = document.querySelectorAll('.editar');
+            const modal3 = document.querySelector('#editImpressoraPopup');
+            const fecharmodal = document.querySelector('#fecharesseaq');
+
+            abrir3.forEach((botao) => {
+                botao.addEventListener('click', function () {
+                    const matriculaEdit = document.getElementById("nomeimpressoraeditar");
+
+                    const linhaTabela = this.closest('tr');
+
+                    if (linhaTabela) {
+                        const matriculaDaLinha = linhaTabela.querySelector('td:nth-child(1)').textContent;
+
+                        if (matriculaDaLinha.trim() !== "") {
+                            matriculaEdit.value = matriculaDaLinha;
+
+                            buscarDados();
+                        } else {
+                            console.log('Matrícula não encontrada');
+                        }
+                    } else {
+                        console.log('Linha não encontrada');
+                    }
+                    modal3.style.display = 'flex';
+                });
+            });
+
+            fecharmodal.addEventListener('click', function () {
+                modal3.style.display = 'none';
+            });
+
+            window.addEventListener('click', function (e) {
+                if (e.target == modal3) {
+                    modal3.style.display = 'none';
+                }
+            });
+        });
+    </script>
+
+    <script>
+        document.getElementById("buscar").addEventListener("click", buscarDados);
+
+        function buscarDados() {
+            var impressoraedit = document.getElementById("nomeimpressoraeditar").value;
+
+            fetch("/buscar_imp", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    impressoraedit: impressoraedit,
+                }),
+            })
+                .then((response) => response.json())
+                .then((data) => {
+                    document.getElementById("nome_edit").value = data.nome_edit;
+                    document.getElementById("modelo_edit").value = data.modelo_edit;
+                    document.getElementById("local_edit").value = data.local_edit;
+                    document.getElementById("link_edit").value = data.link_edit;
+                    document.getElementById("planta_edit").value = data.planta_edit;
+                })
+                .catch((error) => {
+                    console.error("Erro:", error);
+                });
+        }
+    </script>
+
+    <!--  -->
+
+    <!-- editar os dados do colaborador -->
+
+    <script>
+        function recarregar() {
+            window.location.reload();
+        }
+
+        document.getElementById("editar_impr").addEventListener("click", function (e) {
+            e.preventDefault();
+
+            var nomeimpressoraedit = document.getElementById("nomeimpressoraeditar").value;
+            var nome_edit = document.getElementById("nome_edit").value;
+            var modelo_edit = document.getElementById("modelo_edit").value;
+            var local_edit = document.getElementById("local_edit").value;
+            var link_edit = document.getElementById("link_edit").value;
+            var planta_edit = document.getElementById("planta_edit").value;
+
+            fetch('/edit_impressora', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    nomeimpressoraedit: nomeimpressoraedit,
+                    nome_edit: nome_edit,
+                    modelo_edit: modelo_edit,
+                    local_edit: local_edit,
+                    link_edit: link_edit,
+                    planta_edit: planta_edit,
+                })
+            })
+                .then(function (response) {
+                    if (response.ok) {
+                        return response.json();
+                    }
+                    throw new Error('Erro na resposta do servidor.');
+                })
+                .then(function (data) {
+                    alert(data.status);
+                    console.log(nomeimpressoraedit);
+                    console.log(nome_edit);
+                    // recarregar();
+                })
+                .catch(function (error) {
+                    console.error('Erro:', error);
+                });
+        });
+    </script>
+
+    <!--  -->
+
+
+    <!-- APAGAR OS DADOS -->
+
+    <div id="deluser" class="popup">
+        <div class="modal" id="removemodal">
+            <button class="fechar" id="fechaisso"><i class="bi bi-x-circle-fill" id="IconeFechar"></i></button>
+            <form action="" hidden>
+                <input type="text" placeholder="Matricula" required id="delmat" autocomplete="off" hidden>
+            </form>
+            <p id="certezaP">Tem certeza que deseja apagar a impressora?</p>
+            <button type="submit" id="apagar"><i class="bi bi-trash3-fill" id="iconeLixo"></i> Apagar</button>
+        </div>
+    </div>
+
+    <script>
+        window.addEventListener('DOMContentLoaded', (event) => {
+            const abrir2 = document.querySelectorAll('.remover');
+            const modal = document.querySelector('#deluser');
+            const fecharmodal = document.querySelector('#fechaisso');
+
+            abrir2.forEach((botao) => {
+                botao.addEventListener('click', function () {
+                    const matriculaRemove = document.getElementById("delmat");
+
+                    const linhaTabela = this.closest('tr');
+
+                    if (linhaTabela) {
+                        const matriculaDaLinha = linhaTabela.querySelector('td:nth-child(1)').textContent;
+
+                        if (matriculaDaLinha.trim() !== "") {
+                            matriculaRemove.value = matriculaDaLinha;
+                        } else {
+                            console.log('Matrícula não encontrada');
+                        }
+                    } else {
+                        console.log('Linha não encontrada');
+                    }
+
+                    modal.style.display = 'flex';
+                });
+            });
+
+            fecharmodal.addEventListener('click', function () {
+                modal.style.display = 'none';
+            });
+
+            window.addEventListener('click', function (e) {
+                if (e.target == modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        });
+    </script>
+
+    <script>
+        function recarregar() {
+            window.location.reload();
+        }
+
+        document.getElementById("apagar").addEventListener("click", function (e) {
+            e.preventDefault();
+
+            var nomeimpressora = document.getElementById("delmat").value;
+
+            fetch('/del_impressora', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    nomeimpressora: nomeimpressora
+                })
+            })
+                .then(function (response) {
+                    if (response.ok) {
+                        return response.json();
+                    }
+                    throw new Error('Erro na resposta do servidor.');
+                })
+                .then(function (data) {
+                    alert(data.status);
+                    recarregar();
+                })
+                .catch(function (error) {
+                    console.error('Erro:', error);
+                });
+        });
+    </script>
+
+    <!--  -->
+
+
+    <!-- -- C H A M A D O S ---------------------------------------------------------------------------------------------------------------------------------------------------------- -->
+
+    <button class="botao" id="chamadosImpr">
+        Chamados Simpress
+    </button>
+
+    <div class="popup" id="addChamado">
+        <div class="modal">
+            <button class="fechar" id="fechaaquiagora"><i class="bi bi-x-circle-fill" id="IconeFechar"></i></button>
+
+            <h1>Cadastro de Chamados</h1>
+
+            <form action="" method="post" id="adicionar_chamado_form" class="formulario">
+                <div class="questionario">
+                    <label for="n_chamado"><i class="bi bi-123"></i></label>
+                    <input type="text" id="n_chamado" name="n_chamado" required placeholder="Nº do Chamado"
+                        autocomplete="off">
+                </div>
+
+                <div class="questionario">
+                    <label for="SNEqp"><i class="bi bi-upc"></i></label>
+                    <input type="text" id="SNEqp" name="SNEqp" required placeholder="S/N do Equipamento"
+                        autocomplete="off">
+                </div>
+
+                <div class="questionario">
+                    <label for="data"><i class="bi bi-calendar3"></i></label>
+                    <input type="text" id="data" name="data" required placeholder="Data" autocomplete="off">
+                </div>
+
+                <div class="questionario">
+                    <label for="tecnico"><i class="bi bi-person-badge-fill"></i></label>
+                    <input type="text" id="tecnico" name="tecnico" required placeholder="Técnico" autocomplete="off">
+                </div>
+
+                <div class="questionario">
+                    <label for="OBS"><i class="bi bi-eye-fill"></i></label>
+                    <input type="text" id="OBS" name="OBS" placeholder="Observações" autocomplete="off">
+                </div>
+            </form>
+
+            <input type="submit" value="Cadastrar" id="cadastrodeChamados" class="demaisbutton">
+        </div>
+    </div>
+
+
+    <!-- ABRIR FORMULÁRIO -->
+
+    <script>
+        window.addEventListener('DOMContentLoaded', (event) => {
+            const abrir5 = document.querySelector('#chamadosImpr');
+            const modal = document.querySelector('#addChamado');
+            const fechar = document.querySelector('#fechaaquiagora');
+
+            abrir5.addEventListener('click', function () {
+                modal.style.display = 'flex';
+            });
+
+            fechar.addEventListener('click', function () {
+                modal.style.display = 'none';
+            });
+
+            window.addEventListener('click', function (e) {
+                if (e.target == modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        });
+    </script>
+
+    <!-- CADASTRO -->
+
+    <script>
+        document.getElementById("cadastrodeChamados").addEventListener("click", function (e) {
+            e.preventDefault();
+
+            var n_chamado = document.getElementById("n_chamado").value;
+            var SNEqp = document.getElementById("SNEqp").value;
+            var dia = document.getElementById("data").value;
+            var tecnico = document.getElementById("tecnico").value;
+            var OBS = document.getElementById("OBS").value;
+
+            fetch('/add_chamado', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    n_chamado: n_chamado,
+                    SNEqp: SNEqp,
+                    dia: dia,
+                    tecnico: tecnico,
+                    OBS: OBS,
+                    planta: planta
+                })
+
+            })
+                .then(function (response) {
+                    if (response.ok) {
+                        return response.json();
+                    }
+                    throw new Error('Erro na resposta do servidor.');
+                })
+                .then(function (data) {
+                    alert(data.status);
+                    recarregar();
+                })
+                .catch(function (error) {
+                    console.error('Erro:', error);
+                });
+        });
+    </script>
+
+    <!-- -- L I S T A ---------------------------------------------------------------------------------------------------------------------------------------------------------- -->
+
+    <button class="botao" id="listaChamados">
+        Lista de Chamados
+    </button>
+
+    <div id="listaChamadosModal" class="popup">
+        <div class="modal">
+            <div id="tabela">
+                <table>
+                    <thead class="fixed-header">
+                        <tr>
+                            <th>Nº do Chamado</th>
+                            <th>S/N do Equipamento</th>
+                            <th>Data</th>
+                            <th>Técnico</th>
+                            <th>Observações</th>
+                            <th hidden>Planta</th>
+                            <th>Editar</th>
+                            <th>Remover</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body-chamados">
+                        {% for registro in historico_chamados %}
+                        <tr>
+
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+
+                </table>
+
+                <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+                <script>
+                    function historico_chamados() {
+                        axios.get('/chamados')
+                            .then(response => {
+                                const chamados = response.data;
+                                const tableBody = document.getElementById('table-body-chamados');
+                                let html = '';
+
+                                // Chama a função chamadosBD
+                                const registros = chamadosBD(chamados);
+
+                                for (let i = 0; i < registros.length; i++) {
+                                    const registro = registros[i];
+                                    html += `<tr>
+                                        <td>${registro['N_Chamado']}</td>
+                                        <td>${registro['SN_Equipamento']}</td>
+                                        <td>${registro['Data']}</td>
+                                        <td>${registro['Tecnico']}</td>
+                                        <td>${registro['OBS']}</td>
+                                        <td hidden>${registro['Planta']}</td>
+                                        <td>
+                                            <button class="editarChamado">
+                                                <i class="bi bi-pencil-square"></i>
+                                            </button> </td>
+                                        <td>
+                                            <button class="removerChamado">
+                                                <i class="bi bi-trash3"></i>
+                                            </button> 
+                                        </td>
+                                    </tr>`;
+                                }
+
+                                tableBody.innerHTML = html;
+                            })
+                            .catch(error => {
+                                console.error(error);
+                            });
+                    }
+
+                    // Função que retorna registros formatados
+                    function chamadosBD(chamados) {
+                        console.log(chamados);
+                        return chamados;
+                    }
+
+                    // Call the historico_chamados function to populate the table with data
+                    historico_chamados();
+                </script>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        window.addEventListener('DOMContentLoaded', (event) => {
+            const abrir2 = document.querySelector('#listaChamados');
+            const modal2 = document.querySelector('#listaChamadosModal');
+            const fechar2 = document.querySelector('.fechar');
+
+            abrir2.addEventListener('click', function () {
+                modal2.style.display = 'flex';
+            });
+
+            fechar2.addEventListener('click', function () {
+                modal2.style.display = 'none';
+            });
+
+            window.addEventListener('click', function (e) {
+                if (e.target == modal2) {
+                    modal2.style.display = 'none';
+                }
+            });
+        });
+    </script>
+
+
+
+    <!-- EDITAR OS DADOS -->
+
+    <div id="editChamadoPopup" class="popup">
+        <div class="modal">
+            <button class="fechar" id="fecharesse"><i class="bi bi-x-circle-fill" id="IconeFechar"></i></button>
+
+            <h1>Edição de Chamados</h1>
+
+
+            <form action="" class="formulario">
+
+                <div class="questionario">
+                    <label for="NumeroChamadoEdit"><i class="bi bi-123"></i></label>
+                    <input type="text" id="NumeroChamadoEdit" placeholder="Número do Chamado" autocomplete="off">
+                    <button type="button" id="buscar" class="btn">Buscar</button>
+                </div>
+
+                <div class="questionario">
+                    <label for="snEquipamentoEdit"><i class="bi bi-upc"></i></label>
+                    <input type="text" placeholder="S/N do Equipamento" required id="snEquipamentoEdit"
+                        autocomplete="off">
+                </div>
+
+                <div class="questionario">
+                    <label for="dataEdit"><i class="bi bi-calendar3"></i></label>
+                    <input type="text" placeholder="Data" required id="dataEdit" autocomplete="off">
+                </div>
+
+                <div class="questionario">
+                    <label for="tecnicoEdit"><i class="bi bi-person-badge-fill"></i></label>
+                    <input type="text" placeholder="Técnico" required id="tecnicoEdit" autocomplete="off">
+                </div>
+
+                <div class="questionario">
+                    <label for="OBSEdit"><i class="bi bi-eye-fill"></i></label>
+                    <input type="text" placeholder="Observações" required id="OBSEdit" autocomplete="off">
+                </div>
+
+                <div class="questionario">
+                    <label for="planta_edit" hidden id="planta_editalabel" class="planta_edit">Planta</label>
+                    <input type="text" placeholder="Planta" required id="planta_edit" autocomplete="off" list="" hidden
+                        class="planta_edit">
+                    <datalist id="plantaslist">
+                        <option value="SPB">
+                        <option value="SAB">
+                        <option value="SPI">
+                    </datalist>
+                </div>
+            </form>
+            <button type="submit" id="editar_cham" class="btn">Editar</button>
+        </div>
+    </div>
+
+    <!-- BUSCA DE DADOS -->
+
+    <script>
+
+        window.addEventListener('DOMContentLoaded', (event) => {
+            const modalEditChamado = document.querySelector('#editChamadoPopup');
+            const fecharmodal = document.querySelector('#fecharesse');
+
+            // Adiciona evento de clique ao documento
+            document.addEventListener('click', function (e) {
+                // Verifica se o botão clicado tem a classe 'editarChamado'
+                if (e.target.classList.contains('editarChamado')) {
+                    const chamadoedit = document.getElementById("NumeroChamadoEdit");
+                    const linhaTabela = e.target.closest('tr');
+
+                    if (linhaTabela) {
+                        const chamadoDaLinha = linhaTabela.querySelector('td:nth-child(1)').textContent;
+
+                        if (chamadoDaLinha.trim() !== "") {
+                            chamadoedit.value = chamadoDaLinha;
+                            buscarDadosChamado();
+                        } else {
+                            console.log('Número do chamado não encontrado');
+                        }
+                    } else {
+                        console.log('Linha da tabela não encontrada');
+                    }
+
+                    console.log('Antes de exibir o popup');
+                    modalEditChamado.style.display = 'flex';
+                    console.log('Depois de exibir o popup');
+                }
+            });
+
+            fecharmodal.addEventListener('click', function () {
+                modalEditChamado.style.display = 'none';
+            });
+
+            window.addEventListener('click', function (e) {
+                if (e.target == modalEditChamado) {
+                    modalEditChamado.style.display = 'none';
+                }
+            });
+        });
+
+    </script>
+
+    <script>
+        document.getElementById("buscar").addEventListener("click", buscarDadosChamado);
+
+        function buscarDadosChamado() {
+            var NumeroChamadoEdit = document.getElementById("NumeroChamadoEdit").value;
+
+            fetch("/buscar_chamado", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    NumeroChamadoEdit: NumeroChamadoEdit,
+                }),
+            })
+                .then((response) => response.json())
+                .then((data) => {
+                    document.getElementById("snEquipamentoEdit").value = data.snEquipamentoEdit;
+                    document.getElementById("dataEdit").value = data.dataEdit;
+                    document.getElementById("tecnicoEdit").value = data.tecnicoEdit;
+                    document.getElementById("OBSEdit").value = data.OBSEdit;
+                    document.getElementById("planta_edit").value = data.planta_edit;
+                })
+                .catch((error) => {
+                    console.error("Erro:", error);
+                });
+        }
+    </script>
+
+    <!--  -->
+
+    <!-- editar os dados do colaborador -->
+
+    <script>
+        function recarregar() {
+            window.location.reload();
+        }
+
+        document.getElementById("editar_cham").addEventListener("click", function (e) {
+            e.preventDefault();
+
+            var NumeroChamadoEdit = document.getElementById("NumeroChamadoEdit").value;
+            var snEquipamentoEdit = document.getElementById("snEquipamentoEdit").value;
+            var dataEdit = document.getElementById("dataEdit").value;
+            var tecnicoEdit = document.getElementById("tecnicoEdit").value;
+            var OBSEdit = document.getElementById("OBSEdit").value;
+            var planta_edit = document.getElementById("planta_edit").value;
+
+            fetch('/edit_chamado', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    NumeroChamadoEdit: NumeroChamadoEdit,
+                    snEquipamentoEdit: snEquipamentoEdit,
+                    dataEdit: dataEdit,
+                    tecnicoEdit: tecnicoEdit,
+                    OBSEdit: OBSEdit,
+                    planta_edit: planta_edit,
+                })
+            })
+                .then(function (response) {
+                    if (response.ok) {
+                        return response.json();
+                    }
+                    throw new Error('Erro na resposta do servidor.');
+                })
+                .then(function (data) {
+                    alert(data.status);
+                    console.log(NumeroChamadoEdit);
+                    recarregar();
+                })
+                .catch(function (error) {
+                    console.error('Erro:', error);
+                });
+        });
+    </script>
+
+    <!--  -->
+
+    <!-- REMOVER OS DADOS -->
+
+    <div id="delCham" class="popup">
+        <div class="modal" id="removecham">
+            <button class="fechar" id="fechaissoaq"><i class="bi bi-x-circle-fill" id="IconeFechar"></i></button>
+
+            <form action="" hidden>
+                <input type="text" placeholder="Matricula" required id="delc" autocomplete="off" hidden>
+            </form>
+
+            <p id="certezaP">Tem certeza que deseja apagar o chamado?</p>
+
+            <button type="submit" id="apagarCham"><i class="bi bi-trash3-fill" id="iconeLixo"></i> Apagar</button>
+        </div>
+    </div>
+
+
+    <script>
+        window.addEventListener('DOMContentLoaded', (event) => {
+            const modalRemoveChamado = document.querySelector('#delCham');
+            const fecharmodal = document.querySelector('#fechaissoaq');
+
+            // Adiciona evento de clique ao documento
+            document.addEventListener('click', function (e) {
+                // Verifica se o botão clicado tem a classe 'removerChamado'
+                if (e.target.classList.contains('removerChamado')) {
+                    const matriculaRemove = document.getElementById("delc");
+
+                    const linhaTabela = e.target.closest('tr');
+
+                    if (linhaTabela) {
+                        const matriculaDaLinha = linhaTabela.querySelector('td:nth-child(1)').textContent;
+
+                        if (matriculaDaLinha.trim() !== "") {
+                            matriculaRemove.value = matriculaDaLinha;
+                        } else {
+                            console.log('Matrícula não encontrada');
+                        }
+                    } else {
+                        console.log('Linha não encontrada');
+                    }
+
+                    modalRemoveChamado.style.display = 'flex';
+                }
+            });
+
+            fecharmodal.addEventListener('click', function () {
+                modalRemoveChamado.style.display = 'none';
+            });
+
+            window.addEventListener('click', function (e) {
+                if (e.target == modalRemoveChamado) {
+                    modalRemoveChamado.style.display = 'none';
+                }
+            });
+        });
+    </script>
+
+    <script>
+        function recarregar() {
+            window.location.reload();
+        }
+
+        document.getElementById("apagarCham").addEventListener("click", function (e) {
+            e.preventDefault();
+
+            var n_chamadoDel = document.getElementById("delc").value;
+
+            fetch('/del_chamado', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    n_chamadoDel: n_chamadoDel
+                })
+            })
+                .then(function (response) {
+                    if (response.ok) {
+                        return response.json();
+                    }
+                    throw new Error('Erro na resposta do servidor.');
+                })
+                .then(function (data) {
+                    alert(data.status);
+                    recarregar();
+                })
+                .catch(function (error) {
+                    console.error('Erro:', error);
+                });
+        });
+    </script>
+
+
+</body>

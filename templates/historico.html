@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/CSS/redirecionadores.css">
+    <link rel="stylesheet" href="/static/CSS/principal.css">
+    <link rel="stylesheet" href="/static/css/colaboradores.css">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        var planta = "{{ session['planta'] }}";
+    </script>
+    <script src="{{ url_for('static', filename='cores.js') }}"></script>
+    <link rel="icon" href="/static/images/logo.ico">
+    <title>Historico</title>
+
+    <!-- jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+
+    <!-- DataTables FixedHeader CSS -->
+    <link rel="stylesheet" type="text/css"
+        href="https://cdn.datatables.net/fixedheader/3.2.0/css/fixedHeader.dataTables.min.css">
+
+    <!-- DataTables FixedHeader JS -->
+    <script src="https://cdn.datatables.net/fixedheader/3.2.0/js/dataTables.fixedHeader.min.js"></script>
+</head>
+
+<body>
+    <div class="menu">
+        <a href="/menu" class="logo"><img src="#" alt="" id="logo_image"></a>
+
+        <div class="icones_menu">
+            <a href="" id="retornaLink">Retornar</a>
+        </div>
+
+        <script>
+            const retorna = document.getElementById("retornaLink");
+            retorna.addEventListener("click", function (event) {
+                event.preventDefault();
+                window.history.back();
+            });
+        </script>
+    </div>
+
+    <br><br>
+
+    <div id="tabela">
+        <table id="tableColab">
+            <thead class="fixed-header">
+                <tr>
+                    <th>Nome</th>
+                    <th>Data</th>
+                    <th>Horario</th>
+                    <th>Campo Modificado</th>
+                    <th>Antigo</th>
+                    <th>Novo</th>
+                </tr>
+            </thead>
+            <tbody id="table-body">
+                {% for registro in hist %}
+                <tr>
+                    <td>{{ registro.Nome }}</td>
+                    <td>{{ registro.Dia }}</td>
+                    <td>{{ registro.Horario }}</td>
+                    <td>{{ registro.CampoModificado }}</td>
+                    <td>{{ registro.Antigo }}</td>
+                    <td>{{ registro.Novo }}</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <script>
+            $(document).ready(function () {
+                $('#tableColab thead tr')
+                    .clone(true)
+                    .addClass('filters')
+                    .appendTo('#tableColab thead');
+
+                var table = $('#tableColab').DataTable({
+                    orderCellsTop: true,
+                    fixedHeader: false,
+                    initComplete: function () {
+                        var api = this.api();
+
+                        // For each column
+                        api
+                            .columns()
+                            .eq(0)
+                            .each(function (colIdx) {
+                                // Set the header cell to contain the input element
+                                var cell = $('.filters th').eq(
+                                    $(api.column(colIdx).header()).index()
+                                );
+                                var title = $(cell).text();
+                                $(cell).html('<input type="text" placeholder="' + title + '" />');
+
+                                // On every keypress in this input
+                                $('input', $('.filters th').eq($(api.column(colIdx).header()).index()))
+                                    .off('keyup change')
+                                    .on('change', function (e) {
+                                        // Get the search value
+                                        $(this).attr('title', $(this).val());
+                                        var regexr = '({search})'; //$(this).parents('th').find('select').val();
+
+                                        var cursorPosition = this.selectionStart;
+                                        // Search the column for that value
+                                        api
+                                            .column(colIdx)
+                                            .search(
+                                                this.value != ''
+                                                    ? regexr.replace('{search}', '(((' + this.value + ')))')
+                                                    : '',
+                                                this.value != '',
+                                                this.value == ''
+                                            )
+                                            .draw();
+                                    })
+                                    .on('keyup', function (e) {
+                                        e.stopPropagation();
+
+                                        $(this).trigger('change');
+                                        $(this)
+                                            .focus()[0]
+                                            .setSelectionRange(cursorPosition, cursorPosition);
+                                    });
+                            });
+                    },
+                });
+            });
+        </script>
+    </div>
+
+    <script>
+        function historico() {
+            axios.get('/historico')
+                .then(response => {
+                    const hist = response.data;
+                    const tableBody = document.getElementById('table-body');
+                    let html = '';
+
+                    for (let i = 0; i < hist.length; i++) {
+                        const registro = hist[i];
+                        html += `<tr>
+                                      <td>${registro['Nome']}</td>
+                                      <td>${registro['Dia']}</td>
+                                      <td>${registro['Horario']}</td>
+                                      <td>${registro['CampoModificado']}</td>
+                                      <td>${registro['Antigo']}</td>
+                                      <td>${registro['Novo']}</td>
+                                  </tr>`;
+                    }
+
+                    tableBody.innerHTML = html;
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        }   
+    </script>
+    </table>
+
+</body>
+
+</html>

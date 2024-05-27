@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/CSS/redirecionadores.css">
+    <link rel="stylesheet" href="/static/CSS/principal.css">
+    <link rel="stylesheet" href="/static/css/usuarios.css">
+    <link rel="icon" href="/static/images/logo.ico">
+    <script>
+        var planta = "{{ session['planta'] }}";
+        var privilegios = "{{ session['privilegios'] }}";
+        console.log(planta);
+        console.log(privilegios);
+    </script>
+    <script src="{{ url_for('static', filename='cores.js') }}"></script>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <title>Menu</title>
+</head>
+
+<body>
+    <div class="menu">
+        <a href="/menu" class="logo"><img src="#" alt="" id="logo_image"></a>
+
+        <div class="icones_menu">
+            <a href="" id="retornaLink">Retornar</a>
+        </div>
+
+        <script>
+            const retorna = document.getElementById("retornaLink");
+            retorna.addEventListener("click", function (event) {
+                event.preventDefault();
+                window.history.back();
+            });
+
+        </script>
+    </div>
+
+    <br><br>
+
+    <button type="button" class="botao" id="add">
+        Adicionar Usuário
+    </button>
+
+    <br>
+
+    <button type="button" class="botao" id="del" hidden>
+        Remover Usuário
+    </button>
+
+    <button type="button" class="botao" id="edit" hidden>
+        Editar Dados
+    </button>
+
+    <button type="button" class="botao" id="usuarios">
+        Usuários
+    </button>
+
+    <!-- A D I C I O N A R -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- -->
+
+    <div id="adduser" class="popup">
+        <div class="modal">
+            <button class="fechar"><i class="bi bi-x-circle-fill" id="IconeFechar"></i></button>
+
+            <h1>Cadastro de Usuário</h1>
+
+            <form class="formulario">
+
+                <label id="icon" for="name"><i class="bi bi-person-vcard-fill"></i></label>
+                <input type="text" name="nome" id="nome" placeholder="Nome" autocomplete="off">
+
+                <label id="icon" for="matricula"><i class="bi bi-person-badge"></i></label>
+                <input type="text" name="matricula" id="matricula" placeholder="Matricula" autocomplete="off">
+
+                <label id="icon" for="name"><i class="bi bi-key"></i></label>
+                <input type="password" name="senha" id="senha" placeholder="Senha" autocomplete="off">
+
+                <label class="icon" for="plantaAdd" hidden><i class="bi bi-buildings-fill"></i></label>
+                <input type="text" placeholder="Planta" id="plantaAdd" autocomplete="off" hidden>
+
+                <div class="gender">
+                    <input type="radio" class="RadioButton" value="Usuário especial" id="male" name="adm" />
+                    <label for="male" class="radio" id="malelabel">Administrador</label>
+
+                    <input type="radio" class="RadioButton" value="Usuário comum" id="user_normal" name="adm" checked />
+                    <label for="user_normal" class="radio">Comum</label>
+                </div>
+            </form>
+
+            <button type="submit" class="demaisbutton" id="cadastrar">Cadastrar</button>
+        </div>
+    </div>
+
+    <script>
+        window.addEventListener('DOMContentLoaded', (event) => {
+            const abrir1 = document.querySelector('#add');
+            const modal = document.querySelector('#adduser');
+            const fechar = document.querySelector('.fechar');
+
+            abrir1.addEventListener('click', function () {
+                modal.style.display = 'flex';
+                modal.classList.add('mostrar');
+            });
+
+            fechar.addEventListener('click', function () {
+                modal.style.display = 'none';
+            });
+
+            window.addEventListener('click', function (e) {
+                if (e.target == modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        });
+    </script>
+
+    <script>
+        if (privilegios == "admin") {
+            document.getElementById("plantaAdd").hidden = false;
+        } else {
+            console.log("Usuário comum");
+        }
+    </script>
+
+    <script>
+        function recarregar() {
+            window.location.reload();
+        }
+
+        document.getElementById("cadastrar").addEventListener("click", function (e) {
+            e.preventDefault();
+
+            var nome = document.getElementById("nome").value;
+            var matricula = document.getElementById("matricula").value;
+            var senha = document.getElementById("senha").value;
+            var checkbox = document.querySelector('input[name="adm"]:checked');
+            var privilegios = checkbox ? checkbox.value : "";
+            var planta = document.getElementById("plantaAdd").value;
+
+            fetch('/cadastrar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    nome: nome,
+                    matricula: matricula,
+                    senha: senha,
+                    privilegios: privilegios,
+                    planta: planta
+                })
+            })
+                .then(function (response) {
+                    if (response.ok) {
+                        return response.json();
+                    }
+                    throw new Error('Erro na resposta do servidor.');
+                })
+                .then(function (data) {
+                    alert(data.status);
+                    recarregar();
+                })
+                .catch(function (error) {
+                    console.error('Erro:', error);
+                });
+        });
+    </script>
+
+    <!-- R E M O V E R -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- -->
+
+    <div id="deluser" class="popup" style="z-index: 9999;">
+        <div class="modal" id="removemodal" style="z-index: 9999;">
+            <button class="fechar" id="fechaisso"><i class="bi bi-x-circle-fill" id="IconeFechar"></i></button>
+            <form action="" hidden>
+                <input type="text" placeholder="Matricula" required id="delmat" autocomplete="off" hidden>
+            </form>
+            <p id="certezaP">Tem certeza que deseja apagar o usuário?</p>
+            <button type="submit" id="apagar"><i class="bi bi-trash3-fill" id="iconeLixo"></i> Apagar</button>
+        </div>
+    </div>
+
+    <script>
+        window.addEventListener('DOMContentLoaded', (event) => {
+            const abrir2 = document.querySelectorAll('.remover');
+            const modal = document.querySelector('#deluser');
+            const fecharmodal = document.querySelector('#fechaisso');
+
+            abrir2.forEach((botao) => {
+                botao.addEventListener('click', function () {
+                    const matriculaRemove = document.getElementById("delmat");
+
+                    const linhaTabela = this.closest('tr');
+
+                    if (linhaTabela) {
+                        const matriculaDaLinha = linhaTabela.querySelector('td:nth-child(2)').textContent;
+
+                        if (matriculaDaLinha.trim() !== "") {
+                            matriculaRemove.value = matriculaDaLinha;
+                        } else {
+                            console.log('Matrícula não encontrada');
+                        }
+                    } else {
+                        console.log('Linha não encontrada');
+                    }
+
+                    modal.style.display = 'flex';
+                    modal.classList.add('mostrar');
+                });
+            });
+
+            fecharmodal.addEventListener('click', function () {
+                modal.style.display = 'none';
+            });
+
+            window.addEventListener('click', function (e) {
+                if (e.target == modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        });
+    </script>
+
+    <script>
+        function recarregar() {
+            window.location.reload();
+        }
+
+        document.getElementById("apagar").addEventListener("click", function (e) {
+            e.preventDefault();
+
+            var matricula = document.getElementById("delmat").value;
+
+            fetch('/apagar', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    matricula: matricula
+                })
+            })
+                .then(function (response) {
+                    if (response.ok) {
+                        return response.json();
+                    }
+                    throw new Error('Erro na resposta do servidor.');
+                })
+                .then(function (data) {
+                    alert(data.status);
+                    recarregar();
+                })
+                .catch(function (error) {
+                    console.error('Erro:', error);
+                });
+        });
+    </script>
+
+
+    <!-- U S U A R I O S -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- -->
+
+    <div id="usuariosver" class="popup">
+        <div class="modal">
+            <div id="tabela">
+                <table>
+                    <table>
+                        <thead class="fixed-header">
+                            <tr>
+                                <th>Nome</th>
+                                <th>Matricula</th>
+                                <th>Privilégios</th>
+                                <th>Editar</th>
+                                <th>Remover</th>
+                            </tr>
+                        </thead>
+                        <tbody id="table-body">
+                            {% for registro in historico %}
+                            <tr>
+                                <td>{{ registro.Nome }}</td>
+                                <td>{{ registro.Matricula }}</td>
+                                <td>{{ registro.GFPrivilegios}}</td>
+                                <td>
+                                    <button class="editar">
+                                        <i class="bi bi-pencil-square"></i>
+                                    </button>
+                                </td>
+                                <td>
+                                    <button class="remover">
+                                        <i class="bi bi-trash3-fill"></i>
+                                    </button>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                    <script>
+                        function historico() {
+                            axios.get('/historicouser')
+                                .then(response => {
+                                    const historico = response.data;
+                                    const tableBody = document.getElementById('table-body');
+                                    let html = '';
+
+                                    for (let i = 0; i < historico.length; i++) {
+                                        const registro = historico[i];
+                                        html += `<tr>
+                                                      <td>${registro['Nome']}</td>
+                                                      <td>${registro['Matricula']}</td>
+                                                      <td>${registro['GFPrivilegios']}</td>
+                                                  </tr>`;
+                                    }
+
+                                    tableBody.innerHTML = html;
+                                })
+                                .catch(error => {
+                                    console.error(error);
+                                });
+                        }   
+                    </script>
+                </table>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        window.addEventListener('DOMContentLoaded', (event) => {
+            const abrir2 = document.querySelector('#usuarios');
+            const modal = document.querySelector('#usuariosver');
+            const fecharmodal = document.querySelector('#fechaisso');
+
+            abrir2.addEventListener('click', function () {
+                modal.style.display = 'flex';
+                modal.classList.add('mostrar');
+            });
+
+            fecharmodal.addEventListener('click', function () {
+                modal.style.display = 'none';
+            });
+
+            window.addEventListener('click', function (e) {
+                if (e.target == modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        });
+    </script>
+
+    <!-- E D I T A R -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- -->
+
+    <div id="edituser" class="popup">
+        <div class="modal">
+            <button class="fechar" id="fecharesse"><i class="bi bi-x-circle-fill" id="IconeFechar"></i></button>
+
+            <h1>Editar Usuário</h1>
+
+            <form class="formulario">
+
+                <div id="matriculaEditDiv">
+                    <label id="icon" for="matriculaeditaruser"><i class="bi bi-person-badge"></i></label>
+                    <input type="text" name="matriculaeditaruser" id="matriculaeditaruser" placeholder="Matricula"
+                        autocomplete="off">
+                    <button type="button" class="btn" id="buscar">Buscar Usuário</button>
+                </div>
+
+
+                <label id="icon" for="name"><i class="bi bi-person-vcard-fill"></i></label>
+                <input type="text" name="nome" id="nome_edit" placeholder="Nome">
+
+                <label id="icon" for="matricula"><i class="bi bi-person-badge"></i></label>
+                <input type="text" name="matricula" id="matricula_edit" placeholder="Matricula">
+
+                <label id="icon" for="name"><i class="bi bi-key"></i></label>
+                <input type="password" name="senha" id="senha_edit" placeholder="Senha" autocomplete="off">
+
+                <label for="privilegio"><i class="bi bi-person-badge"></i></label>
+                <input type="text" placeholder="privilegios" required id="privilegio" autocomplete="off"
+                    list="listaprivi">
+                <datalist id="listaprivi">
+                    <option value="Administrador">
+                    <option value="Aprendiz">
+                </datalist>
+            </form>
+
+            <button type="submit" id="editar_user" class="demaisbutton">Editar</button>
+        </div>
+    </div>
+
+    <script>
+        window.addEventListener('DOMContentLoaded', (event) => {
+            const abrir2 = document.querySelectorAll('.editar');
+            const modal = document.querySelector('#edituser');
+            const fecharmodal = document.querySelector('#fecharesse');
+
+            abrir2.forEach((botao) => {
+                botao.addEventListener('click', function () {
+                    const matriculaEdit = document.getElementById("matriculaeditaruser");
+
+                    const linhaTabela = this.closest('tr');
+
+                    if (linhaTabela) {
+                        const matriculaDaLinha = linhaTabela.querySelector('td:nth-child(2)').textContent;
+
+                        if (matriculaDaLinha.trim() !== "") {
+                            matriculaEdit.value = matriculaDaLinha;
+
+                            buscarDados();
+                        } else {
+                            console.log('Matrícula não encontrada');
+                        }
+                    } else {
+                        console.log('Linha não encontrada');
+                    }
+                    modal.style.display = 'flex';
+                    modal.classList.add('mostrar');
+                });
+            });
+
+            fecharmodal.addEventListener('click', function () {
+                modal.style.display = 'none';
+            });
+
+            window.addEventListener('click', function (e) {
+                if (e.target == modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        });
+    </script>
+
+    <script>
+        document.getElementById("buscar").addEventListener("click", buscarDados);
+
+        function buscarDados() {
+            var matriculaedit = document.getElementById("matriculaeditaruser").value;
+
+            fetch("/buscar_user", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    matriculaedit: matriculaedit,
+                }),
+            })
+                .then((response) => response.json())
+                .then((data) => {
+                    console.log("Server Response:", data);
+                    document.getElementById("nome_edit").value = data.nome_edit;
+                    document.getElementById("matricula_edit").value = data.matricula_edit;
+                    document.getElementById("senha_edit").value = data.senha_edit;
+                    document.getElementById("privilegio").value = data.privilegio;
+                })
+                .catch((error) => {
+                    console.error("Erro:", error);
+                });
+        }
+    </script>
+
+    <!-- editar os dados do colaborador -->
+
+    <script>
+        function recarregar() {
+            window.location.reload();
+        }
+
+        document.getElementById("editar_user").addEventListener("click", function (e) {
+            e.preventDefault();
+
+            var matriculaeditaruser = document.getElementById("matriculaeditaruser").value;
+            var nome_edit = document.getElementById("nome_edit").value;
+            var matricula_edit = document.getElementById("matricula_edit").value;
+            var senha_edit = document.getElementById("senha_edit").value;
+            var privilegio = document.getElementById("privilegio").value;
+
+            fetch('/edit_user', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    matriculaeditaruser: matriculaeditaruser,
+                    nome_edit: nome_edit,
+                    matricula_edit: matricula_edit,
+                    senha_edit: senha_edit,
+                    privilegio: privilegio
+                })
+            })
+                .then(function (response) {
+                    if (response.ok) {
+                        return response.json();
+                    }
+                    throw new Error('Erro na resposta do servidor.');
+                })
+                .then(function (data) {
+                    alert(data.status);
+                    recarregar();
+                })
+                .catch(function (error) {
+                    console.error('Erro:', error);
+                });
+        });
+    </script>
+
+    <!--  -->
+</body>
+
+</html>

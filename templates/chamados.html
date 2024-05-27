@@ -1,0 +1,521 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/CSS/redirecionadores.css">
+    <link rel="stylesheet" href="/static/CSS/principal.css">
+    <link rel="stylesheet" href="/static/css/impressoras.css">
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.4.1/jquery.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script>
+        var planta = "{{ session['planta'] }}";
+    </script>
+    <script src="{{ url_for('static', filename='cores.js') }}"></script>
+    <link rel="icon" href="/static/images/logo.ico">
+    <title>Impressoras</title>
+</head>
+
+<body>
+
+    <div class="menu">
+        <a href="/menu" class="logo"><img src="#" alt="" id="logo_image"></a>
+
+        <div class="icones_menu">
+            <a href="" id="retornaLink">Retornar</a>
+        </div>
+
+        <script>
+            const retorna = document.getElementById("retornaLink");
+            retorna.addEventListener("click", function (event) {
+                event.preventDefault();
+                window.history.back();
+            });
+        </script>
+    </div>
+
+    <br><br>
+
+
+    <!-- -- C H A M A D O S ---------------------------------------------------------------------------------------------------------------------------------------------------------- -->
+
+    <button class="botao" id="chamadosImpr">
+        Chamados de Impressoras
+    </button>
+
+    <form action="" method="post" id="adicionar_chamado_form">
+        <div class="popup" id="addChamado">
+            <div class="modal" id="modalChamadoAdd">
+                <button class="fechar" hidden>X</button>
+                <div class="questionario">
+                    <label for="n_chamado">Nº do Chamado:</label>
+                    <input type="text" id="n_chamado" name="n_chamado" required placeholder="Nº do Chamado"
+                        autocomplete="off">
+                </div>
+
+                <div class="questionario">
+                    <label for="SNEqp">S/N do Equipamento:</label>
+                    <input type="text" id="SNEqp" name="SNEqp" required placeholder="S/N do Equipamento"
+                        autocomplete="off">
+                </div>
+
+                <div class="questionario">
+                    <label for="data">Data:</label>
+                    <input type="text" id="data" name="data" required placeholder="Data" autocomplete="off">
+                </div>
+
+                <div class="questionario">
+                    <label for="tecnico">Técnico:</label>
+                    <input type="text" id="tecnico" name="tecnico" required placeholder="Técnico" autocomplete="off">
+                </div>
+
+                <div class="questionario">
+                    <label for="OBS">Observações:</label>
+                    <input type="text" id="OBS" name="OBS" placeholder="Observações" autocomplete="off">
+                </div>
+
+                <input type="submit" value="Cadastrar" id="cadastrodeChamados" class="demaisbutton">
+            </div>
+        </div>
+    </form>
+
+    <!-- ABRIR FORMULÁRIO -->
+
+    <script>
+        window.addEventListener('DOMContentLoaded', (event) => {
+            const abrir5 = document.querySelector('#chamadosImpr');
+            const modal = document.querySelector('#addChamado');
+            const fechar = document.querySelector('.fechar');
+
+            abrir5.addEventListener('click', function () {
+                modal.style.display = 'flex';
+            });
+
+            fechar.addEventListener('click', function () {
+                modal.style.display = 'none';
+            });
+
+            window.addEventListener('click', function (e) {
+                if (e.target == modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        });
+    </script>
+
+    <!-- CADASTRO -->
+
+    <script>
+        document.getElementById("cadastrodeChamados").addEventListener("click", function (e) {
+            e.preventDefault();
+
+            var n_chamado = document.getElementById("n_chamado").value;
+            var SNEqp = document.getElementById("SNEqp").value;
+            var data = document.getElementById("data").value;
+            var tecnico = document.getElementById("tecnico").value;
+            var OBS = document.getElementById("OBS").value;
+
+            fetch('/add_chamado', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    n_chamado: n_chamado,
+                    SNEqp: SNEqp,
+                    data: data,
+                    tecnico: tecnico,
+                    OBS: OBS,
+                    planta: planta
+                })
+
+            })
+                .then(function (response) {
+                    if (response.ok) {
+                        return response.json();
+                    }
+                    throw new Error('Erro na resposta do servidor.');
+                })
+                .then(function (data) {
+                    alert(data.status);
+                    recarregar();
+                })
+                .catch(function (error) {
+                    console.error('Erro:', error);
+                });
+        });
+    </script>
+
+    <!-- -- L I S T A ---------------------------------------------------------------------------------------------------------------------------------------------------------- -->
+
+    <button class="botao" id="listaChamados">
+        Lista de Chamados
+    </button>
+
+    <div id="listaChamadosModal" class="popup">
+        <div class="modal">
+            <div id="tabela">
+                <table>
+                    <thead class="fixed-header">
+                        <tr>
+                            <th>Nº do Chamado</th>
+                            <th>S/N do Equipamento</th>
+                            <th>Data</th>
+                            <th>Técnico</th>
+                            <th>Observações</th>
+                            <th hidden>Planta</th>
+                            <th>Editar</th>
+                            <th>Remover</th>
+                        </tr>
+                    </thead>
+                    <tbody id="table-body">
+                        {% for registro in chamados %}
+                        <tr>
+                            <td>{{ registro.N_Chamado }}</td>
+                            <td>{{ registro.SN_Equipamento }}</td>
+                            <td>{{ registro.Data}}</td>
+                            <td>{{ registro.Tecnico}}</td>
+                            <td>{{ registro.OBS}}</td>
+                            <td hidden>{{ registro.Planta}}</td>
+                            <td>
+                                <button class="editar">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                        class="bi bi-pencil-square" viewBox="0 0 16 16">
+                                        <path
+                                            d="M15.502 1.94a.5.5 0 0 1 0 .706L14.459 3.69l-2-2L13.502.646a.5.5 0 0 1 .707 0l1.293 1.293zm-1.75 2.456-2-2L4.939 9.21a.5.5 0 0 0-.121.196l-.805 2.414a.25.25 0 0 0 .316.316l2.414-.805a.5.5 0 0 0 .196-.12l6.813-6.814z" />
+                                        <path fill-rule="evenodd"
+                                            d="M1 13.5A1.5 1.5 0 0 0 2.5 15h11a1.5 1.5 0 0 0 1.5-1.5v-6a.5.5 0 0 0-1 0v6a.5.5 0 0 1-.5.5h-11a.5.5 0 0 1-.5-.5v-11a.5.5 0 0 1 .5-.5H9a.5.5 0 0 0 0-1H2.5A1.5 1.5 0 0 0 1 2.5z" />
+                                    </svg>
+                                </button>
+                            </td>
+                            <td>
+                                <button class="remover">
+                                    <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" fill="currentColor"
+                                        class="bi bi-trash" viewBox="0 0 16 16">
+                                        <path
+                                            d="M5.5 5.5A.5.5 0 0 1 6 6v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m2.5 0a.5.5 0 0 1 .5.5v6a.5.5 0 0 1-1 0V6a.5.5 0 0 1 .5-.5m3 .5a.5.5 0 0 0-1 0v6a.5.5 0 0 0 1 0z" />
+                                        <path
+                                            d="M14.5 3a1 1 0 0 1-1 1H13v9a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V4h-.5a1 1 0 0 1-1-1V2a1 1 0 0 1 1-1H6a1 1 0 0 1 1-1h2a1 1 0 0 1 1 1h3.5a1 1 0 0 1 1 1zM4.118 4 4 4.059V13a1 1 0 0 0 1 1h6a1 1 0 0 0 1-1V4.059L11.882 4zM2.5 3h11V2h-11z" />
+                                    </svg>
+                                </button>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+
+                <script>
+                    function carregarChamados() {
+                        axios.get('/chamados')
+                            .then(response => {
+                                const registros = response.data;
+                                const tableBody = document.getElementById('table-body');
+                                let html = '';
+
+                                console.log("Fui chamado")
+
+                                for (let i = 0; i < registros.length; i++) {
+                                    const registro = registros[i];
+                                    html += `<tr>
+                                        <td>${registro['N_Chamado']}</td>
+                                        <td>${registro['SN_Equipamento']}</td>
+                                        <td>${registro['Data']}</td>
+                                        <td>${registro['Tecnico']}</td>
+                                        <td>${registro['OBS']}</td>
+                                        <td>${registro['Planta']}</td>
+                                    </tr>`;
+                                }
+
+                                tableBody.innerHTML = html;
+                            })
+                            .catch(error => {
+                                console.error(error);
+                            });
+                    }
+
+
+                    function chamadosBD(cham) {
+                        return cham;
+                    }
+                </script>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        window.addEventListener('DOMContentLoaded', (event) => {
+            const abrir6 = document.querySelector('#listaChamados');
+            const modal6 = document.querySelector('#listaChamadosModal');
+            const fechar6 = document.querySelector('.fechar');
+
+            abrir6.addEventListener('click', function () {
+                modal6.style.display = 'flex';
+            });
+
+            fechar6.addEventListener('click', function () {
+                modal6.style.display = 'none';
+            });
+
+            window.addEventListener('click', function (e) {
+                if (e.target == modal6) {
+                    modal6.style.display = 'none';
+                }
+            });
+        });
+    </script>
+
+
+
+    <!-- EDITAR OS DADOS -->
+
+    <div id="editChamadoPopup" class="popup">
+        <div class="modal" style="overflow-y: auto;">
+            <button class="fechar" id="fecharesse">X</button>
+            <form action="" class="form_edit_imp">
+                <div class="questionario" id="impressoraEditDiv">
+                    <label for="NumeroChamadoEdit">Número do Chamado:</label>
+                    <input type="text" id="NumeroChamadoEdit" placeholder="Número do Chamado" autocomplete="off">
+                    <button type="button" id="buscar" class="demaisbutton">Buscar</button>
+                </div>
+
+                <label for="snEquipamentoEdit" id="nome_editalabel">S/N do Equipamento</label>
+                <input type="text" placeholder="S/N do Equipamento" required id="snEquipamentoEdit" autocomplete="off">
+
+                <label for="dataEdit" id="modelo_editalabel">Data</label>
+                <input type="text" placeholder="Data" required id="dataEdit" autocomplete="off">
+
+                <label for="tecnicoEdit">Técnico</label>
+                <input type="text" placeholder="Técnico" required id="tecnicoEdit" autocomplete="off">
+
+                <label for="OBSEdit" id="link_editlabel">Observações</label>
+                <input type="text" placeholder="Observações" required id="OBSEdit" autocomplete="off">
+
+                <label for="planta_edit" hidden class="planta_edit">Planta</label>
+                <input type="text" placeholder="Planta" required id="planta_edit" autocomplete="off" list="" hidden
+                    class="planta_edit">
+                <datalist id="plantaslist">
+                    <option value="SPB">
+                    <option value="SAB">
+                    <option value="SPI">
+                </datalist>
+            </form>
+            <button type="submit" id="editar_cham" class="demaisbutton">Editar</button>
+        </div>
+    </div>
+
+    <!-- BUSCA DE DADOS -->
+
+    <script>
+        window.addEventListener('DOMContentLoaded', (event) => {
+            const abrir3 = document.querySelectorAll('.editar');
+            const modal3 = document.querySelector('#editChamadoPopup');
+            const fecharmodal = document.querySelector('#fecharesse');
+
+            abrir3.forEach((botao) => {
+                botao.addEventListener('click', function () {
+                    const chamadoedit = document.getElementById("NumeroChamadoEdit");
+
+                    const linhaTabela = this.closest('tr');
+
+                    if (linhaTabela) {
+                        const chamadoDaLinha = linhaTabela.querySelector('td:nth-child(1)').textContent;
+
+                        if (chamadoDaLinha.trim() !== "") {
+                            chamadoedit.value = chamadoDaLinha;
+
+                            buscarDados();
+                        } else {
+                            console.log('Matrícula não encontrada');
+                        }
+                    } else {
+                        console.log('Linha não encontrada');
+                    }
+                    modal3.style.display = 'flex';
+                });
+            });
+
+            fecharmodal.addEventListener('click', function () {
+                modal3.style.display = 'none';
+            });
+
+            window.addEventListener('click', function (e) {
+                if (e.target == modal3) {
+                    modal3.style.display = 'none';
+                }
+            });
+        });
+    </script>
+
+    <script>
+        document.getElementById("buscar").addEventListener("click", buscarDados());
+
+        function buscarDados() {
+            var NumeroChamadoEdit = document.getElementById("NumeroChamadoEdit").value;
+
+            fetch("/buscar_chamado", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    NumeroChamadoEdit: NumeroChamadoEdit,
+                }),
+            })
+                .then((response) => response.json())
+                .then((data) => {
+                    document.getElementById("snEquipamentoEdit").value = data.snEquipamentoEdit;
+                    document.getElementById("dataEdit").value = data.dataEdit;
+                    document.getElementById("tecnicoEdit").value = data.tecnicoEdit;
+                    document.getElementById("OBSEdit").value = data.OBSEdit;
+                    document.getElementById("planta_edit").value = data.planta_edit;
+                })
+                .catch((error) => {
+                    console.error("Erro:", error);
+                });
+        }
+    </script>
+
+    <!--  -->
+
+    <!-- editar os dados do colaborador -->
+
+    <script>
+        function recarregar() {
+            window.location.reload();
+        }
+
+        document.getElementById("editar_cham").addEventListener("click", function (e) {
+            e.preventDefault();
+
+            var NumeroChamadoEdit = document.getElementById("NumeroChamadoEdit").value;
+            var snEquipamentoEdit = document.getElementById("snEquipamentoEdit").value;
+            var dataEdit = document.getElementById("dataEdit").value;
+            var tecnicoEdit = document.getElementById("tecnicoEdit").value;
+            var OBSEdit = document.getElementById("OBSEdit").value;
+            var planta_edit = document.getElementById("planta_edit").value;
+
+            fetch('/edit_chamado', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    NumeroChamadoEdit: NumeroChamadoEdit,
+                    snEquipamentoEdit: snEquipamentoEdit,
+                    dataEdit: dataEdit,
+                    tecnicoEdit: tecnicoEdit,
+                    OBSEdit: OBSEdit,
+                    planta_edit: planta_edit,
+                })
+            })
+                .then(function (response) {
+                    if (response.ok) {
+                        return response.json();
+                    }
+                    throw new Error('Erro na resposta do servidor.');
+                })
+                .then(function (data) {
+                    alert(data.status);
+                    console.log(NumeroChamadoEdit);
+                    recarregar();
+                })
+                .catch(function (error) {
+                    console.error('Erro:', error);
+                });
+        });
+    </script>
+
+    <!--  -->
+
+    <!-- REMOVER OS DADOS -->
+
+    <div id="deluser" class="popup">
+        <div class="modal">
+            <button class="fechar" id="fechaisso">X</button>
+            <form action="" hidden>
+                <input type="text" placeholder="Matricula" required id="delmat" autocomplete="off" hidden>
+            </form>
+            <p id="certezaP">Tem certeza que deseja apagar o usuário?</p>
+            <button type="submit" id="apagar" class="demaisbutton">Apagar</button>
+        </div>
+    </div>
+
+    <script>
+        window.addEventListener('DOMContentLoaded', (event) => {
+            const abrir2 = document.querySelectorAll('.remover');
+            const modal = document.querySelector('#deluser');
+            const fecharmodal = document.querySelector('#fechaisso');
+
+            abrir2.forEach((botao) => {
+                botao.addEventListener('click', function () {
+                    const matriculaRemove = document.getElementById("delmat");
+
+                    const linhaTabela = this.closest('tr');
+
+                    if (linhaTabela) {
+                        const matriculaDaLinha = linhaTabela.querySelector('td:nth-child(1)').textContent;
+
+                        console.log(matriculaDaLinha);
+
+                        if (matriculaDaLinha.trim() !== "") {
+                            matriculaRemove.value = matriculaDaLinha;
+                        } else {
+                            console.log('Matrícula não encontrada');
+                        }
+                    } else {
+                        console.log('Linha não encontrada');
+                    }
+
+                    modal.style.display = 'flex';
+                });
+            });
+
+            fecharmodal.addEventListener('click', function () {
+                modal.style.display = 'none';
+            });
+
+            window.addEventListener('click', function (e) {
+                if (e.target == modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        });
+    </script>
+
+    <script>
+        function recarregar() {
+            window.location.reload();
+        }
+
+        document.getElementById("apagar").addEventListener("click", function (e) {
+            e.preventDefault();
+
+            var n_chamadoDel = document.getElementById("delmat").value;
+
+            fetch('/del_chamado', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    n_chamadoDel: n_chamadoDel
+                })
+            })
+                .then(function (response) {
+                    if (response.ok) {
+                        return response.json();
+                    }
+                    throw new Error('Erro na resposta do servidor.');
+                })
+                .then(function (data) {
+                    alert(data.status);
+                    recarregar();
+                })
+                .catch(function (error) {
+                    console.error('Erro:', error);
+                });
+        });
+    </script>
+
+</body>

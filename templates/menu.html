@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/CSS/redirecionadores.css">
+    <link rel="stylesheet" href="/static/CSS/principal.css">
+    <link rel="stylesheet" href="/static/css/menu.css">
+    <link rel="stylesheet" href="/static/css/cadastro.css">
+    <link rel="icon" href="/static/images/logo.ico">
+    <script>
+        var planta = "{{ session['planta'] }}";
+        var privilegios = "{{ session['privilegios'] }}";
+        console.log(planta);
+        console.log(privilegios);
+    </script>
+    <script src="{{ url_for('static', filename='cores.js') }}"></script>
+    <title>Menu</title>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+</head>
+
+<body>
+    <div class="menu">
+        <a href="/menu" class="logo"><img src="#" alt="" id="logo_image"></a>
+    </div>
+
+    <br><br>
+
+    <div class="redirecionador">
+        <a href="/cadastro" class="redirecionadores">
+            <button class="botao" id="CadEdi">
+                Cadastro / Remoção de Colaboradores
+            </button>
+        </a>
+    </div>
+
+    <div class="redirecionador">
+        <button class="botao" id="adicionar_comum">
+            Adicionar Colaborador
+        </button>
+    </div>
+
+
+    <div class="popup" id="addfunc">
+        <div class="modal">
+            <button class="fechar"><i class="bi bi-x-circle-fill" id="IconeFechar"></i></button>
+
+            <h1>Cadastro de Usuário</h1>
+
+            <form class="formulario">
+
+                <label id="icon" for="name"><i class="bi bi-person-vcard-fill"></i></label>
+                <input type="text" name="nome" id="nome" placeholder="Nome" autocomplete="off">
+
+                <label id="icon" for="sobrenome"><i class="bi bi-person-vcard-fill"></i></label>
+                <input type="text" name="sobrenome" id="sobrenome" placeholder="Sobrenome" autocomplete="off">
+
+                <label id="icon" for="matricula"><i class="bi bi-person-badge"></i></label>
+                <input type="text" name="matricula" id="matricula" placeholder="matricula" autocomplete="off">
+
+                <label id="icon" for="name"><i class="bi bi-geo-alt-fill"></i></label>
+                <input type="text" id="cc" name="cc" required placeholder="CC / Setor" autocomplete="off" list="listaCC"
+                    autocomplete="off">
+                <datalist id="listaCC">
+                    <option value="H021 - COASTING"></option>
+                    <option value="H084 - MELHORIA CONTINUA"></option>
+                    <option value="P020 - DIREÇÃO GERAL"></option>
+                    <option value="P080 - CONTROLADORIA"></option>
+                    <option value="P040 - COMPRAS"></option>
+                    <option value="H031 - INFORMATICA"></option>
+                    <option value="P090 - RECURSOS HUMANOS"></option>
+                    <option value="H091 - SERVIÇOS GERAIS"></option>
+                    <option value="H118 - COMERCIAL"></option>
+                    <option value="P100 - MANUTENÇÃO"></option>
+                    <option value="P060 - QUALIDADE"></option>
+                    <option value="H105 - ENGENHARIA DE PROJETOS"></option>
+                    <option value="P070 - ENGENHARIA PROCESSO E PRODUTO"></option>
+                    <option value="P050 - LOGISTICA"></option>
+                    <option value="P031 - INJEÇÃO"></option>
+                    <option value="P033 - PINTURA"></option>
+                    <option value="P032 - MONTAGEM"></option>
+                </datalist>
+
+                <label id="icon" for="email"><i class="bi bi-envelope-at-fill"></i></label>
+                <input type="text" name="email" id="email" placeholder="E-mail" autocomplete="off">
+
+                <label id="icon" for="turno"><i class="bi bi-clock-fill"></i></label>
+                <input type="text" name="turno" id="turno" placeholder="Turno" autocomplete="off" list="listaTurnos">
+                <datalist id="listaTurnos">
+                    <option value="1º Turno"></option>
+                    <option value="2º Turno"></option>
+                    <option value="3º Turno"></option>
+                    <option value="ADM"></option>
+                </datalist>
+
+                <label class="icon" for="celular_empresarial"><i class="bi bi-phone"></i></label>
+                <input type="text" name="celular_empresarial" id="celular_empresarial" placeholder="Celular Empresarial"
+                    autocomplete="off">
+
+                <label class="icon" for="modelo_celular"><i class="bi bi-phone-fill"></i></label>
+                <input type="text" name="modelo_celular" id="modelo_celular" placeholder="Modelo de Celular"
+                    autocomplete="off">
+
+                <label class="icon" for="numero_telefone"><i class="bi bi-telephone-fill"></i></label>
+                <input type="text" name="numero_telefone" id="numero_telefone" placeholder="Número de Telefone"
+                    autocomplete="off">
+
+                <label class="icon" for="imei"><i class="bi bi-phone"></i></label>
+                <input type="text" name="imei" id="imei" placeholder="IMEI" autocomplete="off">
+
+                <label class="icon" for="sn_celular"><i class="bi bi-123"></i></label>
+                <input type="text" name="sn_celular" id="sn_celular" placeholder="S/N Celular" autocomplete="off">
+
+                <label id="icon" for="nome_maquina"><i class="bi bi-laptop"></i></label>
+                <input type="text" name="nome_maquina" id="nome_maquina" placeholder="Nome da Máquina"
+                    autocomplete="off">
+
+                <label id="icon" for="maquina_sn"><i class="bi bi-123"></i></i></label>
+                <input type="text" name="maquina_sn" id="maquina_sn" placeholder="Máquina S/N" autocomplete="off">
+
+                <label id="icon" for="nome_monitor"><i class="bi bi-display"></i></label>
+                <input type="text" name="nome_monitor" id="nome_monitor" placeholder="Nome do Monitor"
+                    autocomplete="off">
+
+                <label id="icon" for="monitor_sn"><i class="bi bi-123"></i></label>
+                <input type="text" name="monitor_sn" id="monitor_sn" placeholder="Monitor S/N" autocomplete="off">
+
+                <label id="icon" for="mac_ethernet"><i class="bi bi-ethernet"></i></label>
+                <input type="text" name="mac_ethernet" id="mac_ethernet" placeholder="MAC Ethernet" autocomplete="off">
+
+                <label id="icon" for="mac_wifi"><i class="bi bi-wifi"></i></label>
+                <input type="text" name="mac_wifi" id="mac_wifi" placeholder="MAC WiFi" autocomplete="off">
+
+                <label id="icon" for="instalacao"><i class="bi bi-calendar-week-fill"></i></label>
+                <input type="text" name="instalacao" id="instalacao" placeholder="Instalação" autocomplete="off">
+
+                <label id="icon" for="anydesk"><i class="bi bi-layers-half"></i></label>
+                <input type="text" name="anydesk" id="anydesk" placeholder="Anydesk" autocomplete="off">
+
+                <label id="icon" for="maquina_antiga"><i class="bi bi-pc-display"></i></label>
+                <input type="text" name="maquina_antiga" id="maquina_antiga" placeholder="Máquina Antiga"
+                    autocomplete="off">
+
+                <label id="icon" for="sn_antiga"><i class="bi bi-123"></i></label>
+                <input type="text" name="sn_antiga" id="sn_antiga" placeholder="S/N Antiga" autocomplete="off">
+
+                <label id="icon" for="locados"><i class="bi bi-house-fill"></i></label>
+                <input type="text" name="locados" id="locados" placeholder="Locados" autocomplete="off">
+
+                <label id="icon" for="fabricante"><i class="bi bi-buildings"></i></label>
+                <input type="text" name="fabricante" id="fabricante" placeholder="Fabricante" autocomplete="off">
+
+                <label id="icon" for="modelo"><i class="bi bi-cpu-fill"></i></label>
+                <input type="text" name="modelo" id="modelo" placeholder="Modelo" autocomplete="off">
+
+                <label id="icon" for="ram"><i class="bi bi-memory"></i></label>
+                <input type="text" name="ram" id="ram" placeholder="RAM" autocomplete="off">
+
+                <label id="icon" for="planta"><i class="bi bi-buildings-fill"></i></label>
+                <input type="text" name="planta" id="planta" placeholder="Planta" autocomplete="off">
+
+            </form>
+
+            <button type="submit" class="demaisbutton" id="cadastrar">Cadastrar</button>
+        </div>
+    </div>
+
+    <script>
+        window.addEventListener('DOMContentLoaded', (event) => {
+            const abrir1 = document.querySelector('#adicionar_comum');
+            const modal = document.querySelector('#addfunc');
+            const fechar = document.querySelector('.fechar');
+
+            abrir1.addEventListener('click', function () {
+                modal.style.display = 'flex';
+            });
+
+            fechar.addEventListener('click', function () {
+                modal.style.display = 'none';
+            });
+
+            window.addEventListener('click', function (e) {
+                if (e.target == modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        });
+    </script>
+
+    <script>
+        function recarregar() {
+            window.location.reload();
+        }
+
+        document.getElementById("cadastrar").addEventListener("click", function (e) {
+            e.preventDefault();
+
+            var nome = document.getElementById("nome").value;
+            var sobrenome = document.getElementById("sobrenome").value;
+            var matricula = document.getElementById("matricula").value;
+            var SetorCC = document.getElementById("cc").value;
+            var email = document.getElementById("email").value;
+            var turno = document.getElementById("turno").value;
+            var numero_telefone = document.getElementById("numero_telefone").value;
+            var modelo_celular = document.getElementById("modelo_celular").value;
+            var celular_empresarial = document.getElementById("celular_empresarial").value;
+            var imei = document.getElementById("imei").value;
+            var sn_celular = document.getElementById("sn_celular").value;
+            var nome_maquina = document.getElementById("nome_maquina").value;
+            var maquina_sn = document.getElementById("maquina_sn").value;
+            var nome_monitor = document.getElementById("nome_monitor").value;
+            var monitor_sn = document.getElementById("monitor_sn").value;
+            var mac_ethernet = document.getElementById("mac_ethernet").value;
+            var mac_wifi = document.getElementById("mac_wifi").value;
+            var instalacao = document.getElementById("instalacao").value;
+            var anydesk = document.getElementById("anydesk").value;
+            var maquina_antiga = document.getElementById("maquina_antiga").value;
+            var sn_antiga = document.getElementById("sn_antiga").value;
+            var locados = document.getElementById("locados").value;
+            var fabricante = document.getElementById("fabricante").value;
+            var modelo = document.getElementById("modelo").value;
+            var ram = document.getElementById("ram").value;
+            planta = document.getElementById("planta").value;
+
+
+            fetch('/add_colaborador', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    nome: nome,
+                    sobrenome: sobrenome,
+                    matricula: matricula,
+                    SetorCC: SetorCC,
+                    email: email,
+                    turno: turno,
+                    numero_telefone: numero_telefone,
+                    modelo_celular: modelo_celular,
+                    celular_empresarial: celular_empresarial,
+                    imei: imei,
+                    sn_celular: sn_celular,
+                    nome_maquina: nome_maquina,
+                    maquina_sn: maquina_sn,
+                    nome_monitor: nome_monitor,
+                    monitor_sn: monitor_sn,
+                    mac_ethernet: mac_ethernet,
+                    mac_wifi: mac_wifi,
+                    instalacao: instalacao,
+                    anydesk: anydesk,
+                    maquina_antiga: maquina_antiga,
+                    sn_antiga: sn_antiga,
+                    locados: locados,
+                    fabricante: fabricante,
+                    modelo: modelo,
+                    ram: ram,
+                    planta: planta
+                })
+            })
+                .then(function (response) {
+                    if (response.ok) {
+                        return response.json();
+                    }
+                    throw new Error('Erro na resposta do servidor.');
+                })
+                .then(function (data) {
+                    alert(data.status);
+                    recarregar();
+                })
+                .catch(function (error) {
+                    console.error('Erro:', error);
+                });
+        });
+    </script>
+
+
+    <div class="redirecionador">
+        <a href="/usuarios" class="redirecionadores">
+            <button class="botao" id="users">
+                Usuários
+            </button>
+        </a>
+    </div>
+
+    <div class="redirecionador">
+        <a href="/colaboradores" class="redirecionadores">
+            <button class="botao" id="colabs">
+                Colaboradores
+            </button>
+        </a>
+    </div>
+
+    <div class="redirecionador">
+        <a href="/impressoras" class="redirecionadores">
+            <button class="botao" id="impressoras">
+                Impressoras/Chamados
+            </button>
+        </a>
+    </div>
+
+    <div class="redirecionador">
+        <a href="/historico" class="redirecionadores">
+            <button class="botao" id="historico">
+                Historico
+            </button>
+        </a>
+
+        <div>
+            <a href="/logout" class="redirecionadores" id="sair">
+                <button class="botao" id="logout">
+                    Sair
+                </button>
+            </a>
+        </div>
+
+        <script>
+            if (privilegios == "Usuário comum") {
+                document.getElementById("CadEdi").style.display = "none";
+                document.getElementById("users").style.display = "none";
+
+
+                document.getElementById("impressoras").style.display = "none";
+                document.getElementById("historico").style.display = "none";
+            }
+            else {
+                document.getElementById("adicionar_comum").style.display = "none";
+            }
+        </script>
+</body>
+
+</html>

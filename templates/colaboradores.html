@@ -1,0 +1,743 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/CSS/redirecionadores.css">
+    <link rel="stylesheet" href="/static/CSS/principal.css">
+    <link rel="stylesheet" href="/static/css/colaboradores.css">
+    <script src="https://cdn.jsdelivr.net/npm/axios/dist/axios.min.js"></script>
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <!-- jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+
+    <!-- DataTables FixedHeader CSS -->
+    <link rel="stylesheet" type="text/css"
+        href="https://cdn.datatables.net/fixedheader/3.2.0/css/fixedHeader.dataTables.min.css">
+
+    <!-- DataTables FixedHeader JS -->
+    <script src="https://cdn.datatables.net/fixedheader/3.2.0/js/dataTables.fixedHeader.min.js"></script>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <script>
+        var planta = "{{ session['planta'] }}";
+        var privilegios = "{{ session['privilegios'] }}";
+        console.log(planta);
+        console.log(privilegios);
+    </script>
+
+    <script src="{{ url_for('static', filename='cores.js') }}"></script>
+    <link rel="icon" href="/static/images/logo.ico">
+    <title>Colaboradores</title>
+</head>
+
+<body>
+    <div class="menu">
+        <a href="/menu" class="logo"><img src="#" alt="" id="logo_image"></a>
+
+        <div class="icones_menu">
+            <a href="" id="retornaLink">Retornar</a>
+        </div>
+
+        <script>
+            const retorna = document.getElementById("retornaLink");
+            retorna.addEventListener("click", function (event) {
+                event.preventDefault();
+                window.history.back();
+            });
+        </script>
+    </div>
+
+    <br><br>
+
+    <div id="tabela">
+
+        <table id="tableColab">
+            <thead class="fixed-header">
+                <tr>
+                    <th>Nome</th>
+                    <th>Sobrenome</th>
+                    <th>Matricula</th>
+                    <th>Setor / CC</th>
+                    <th>E-mail</th>
+                    <th>Turno</th>
+                    <th>Celular Empresarial</th>
+                    <th>Modelo de Celular</th>
+                    <th>Número de Celular</th>
+                    <th>Imei</th>
+                    <th>Celular S/N</th>
+                    <th>Nome Máquina</th>
+                    <th>Máquina S/N</th>
+                    <th>Nome Monitor</th>
+                    <th>Monitor S/N</th>
+                    <th style="padding-left: 60px !important; padding-right: 60px !important;">MAC Ethernet</th>
+                    <th style="padding-left: 60px !important; padding-right: 60px !important;">MAC WiFi</th>
+                    <th>Instalação</th>
+                    <th>Anydesk</th>
+                    <th>Máquina Antiga</th>
+                    <th>S/N Antiga</th>
+                    <th>Locados</th>
+                    <th>Fabricante</th>
+                    <th style="padding-left: 40px !important; padding-right: 40px !important;">Modelo</th>
+                    <th>RAM</th>
+                    <th hidden class="plantahist">Planta</th>
+                    <th class="editarTH">Editar</th>
+                    <th class="desligadoTH">Desligado?</th>
+                </tr>
+            </thead>
+            <tbody id="table-body">
+                {% for registro in col %}
+                <tr>
+                    <td>{{ registro.Nome }}</td>
+                    <td>{{ registro.Sobrenome }}</td>
+                    <td>{{ registro.Matricula }}</td>
+                    <td>{{ registro.SetorCC }}</td>
+                    <td>{{ registro.E_mail }}</td>
+                    <td>{{ registro.Turno }}</td>
+                    <td>{{ registro.Celular_Empresarial }}</td>
+                    <td>{{ registro.Modelo_Celular }}</td>
+                    <td>{{ registro.Numero_Telefone }}</td>
+                    <td>{{ registro.Imei }}</td>
+                    <td>{{ registro.Celular_SN }}</td>
+                    <td>{{ registro.Nome_Maquina }}</td>
+                    <td>{{ registro.Maquina_SN }}</td>
+                    <td>{{ registro.Nome_Monitor }}</td>
+                    <td>{{ registro.Monitor_SN }}</td>
+                    <td>{{ registro.MAC_Ethernet }}</td>
+                    <td>{{ registro.MAC_WiFi }}</td>
+                    <td>{{ registro.Instalacao }}</td>
+                    <td>{{ registro.Anydesk }}</td>
+                    <td>{{ registro.Maquina_Antiga }}</td>
+                    <td>{{ registro.SN_Antiga }}</td>
+                    <td>{{ registro.Locados }}</td>
+                    <td>{{ registro.Fabricante }}</td>
+                    <td>{{ registro.Modelo }}</td>
+                    <td>{{ registro.RAM }}</td>
+                    <td hidden id="plantahist" class="plantahist">{{ registro.Planta }}</td>
+                    <td class="editarButton">
+                        <button class="editar">
+                            <i class="bi bi-pencil-square"></i>
+                        </button>
+                    </td>
+                    <td class="desligar">
+                        <input type="checkbox" onchange="desligarFuncionario(this)">
+                    </td>
+
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+
+
+        <script>
+
+            function verificarEstadoDesligado() {
+                // Seleciona todas as linhas da tabela
+                var linhas = document.querySelectorAll('tbody tr');
+                // Itera sobre as linhas da tabela
+                linhas.forEach(function (linha) {
+                    // Obtém a matrícula da linha
+                    var matriculaDaLinha = linha.querySelector('td:nth-child(3)').textContent.trim();
+                    // Faz uma chamada AJAX para obter o estado da coluna "desligados" para esta matrícula
+                    $.ajax({
+                        url: '/obter_estado_desligado',
+                        type: 'POST',
+                        contentType: 'application/json',
+                        data: JSON.stringify({ matriculaDaLinha: matriculaDaLinha }),
+                        success: function (response) {
+                            // Verifica se o estado da coluna "desligados" é "sim" e aplica a formatação necessária
+                            if (response.desligados === 'sim') {
+                                linha.style.backgroundColor = 'red';
+                                linha.style.fontWeight = 'none';
+                                linha.style.color = '#fff';
+                                linha.querySelector('td:nth-child(26) input').checked = true;
+                            } else {
+                                linha.style.backgroundColor = '#fff';
+                                linha.style.fontWeight = 'none';
+                                linha.style.color = '#000';
+                                linha.querySelector('td:nth-child(26) input').checked = false;
+                            }
+                        },
+                        error: function (error) {
+                            console.log(error);
+                        }
+                    });
+                });
+            };
+
+
+            $(document).ready(function () {
+
+                verificarEstadoDesligado();
+
+                $('#tableColab thead tr')
+                    .clone(true)
+                    .addClass('filters')
+                    .appendTo('#tableColab thead');
+
+                var table = $('#tableColab').DataTable({
+                    orderCellsTop: true,
+                    fixedHeader: false,
+                    initComplete: function () {
+                        var api = this.api();
+
+                        // For each column
+                        api
+                            .columns()
+                            .eq(0)
+                            .each(function (colIdx) {
+                                // Set the header cell to contain the input element
+                                var cell = $('.filters th').eq(
+                                    $(api.column(colIdx).header()).index()
+                                );
+                                var title = $(cell).text();
+                                $(cell).html('<input type="text" placeholder="' + title + '" />');
+
+                                // On every keypress in this input
+                                $('input', $('.filters th').eq($(api.column(colIdx).header()).index()))
+                                    .off('keyup change')
+                                    .on('change', function (e) {
+                                        // Get the search value
+                                        $(this).attr('title', $(this).val());
+                                        var regexr = '({search})'; //$(this).parents('th').find('select').val();
+
+                                        var cursorPosition = this.selectionStart;
+                                        // Search the column for that value
+                                        api
+                                            .column(colIdx)
+                                            .search(
+                                                this.value != ''
+                                                    ? regexr.replace('{search}', '(((' + this.value + ')))')
+                                                    : '',
+                                                this.value != '',
+                                                this.value == ''
+                                            )
+                                            .draw();
+                                    })
+                                    .on('keyup', function (e) {
+                                        e.stopPropagation();
+
+                                        $(this).trigger('change');
+                                        $(this)
+                                            .focus()[0]
+                                            .setSelectionRange(cursorPosition, cursorPosition);
+                                    });
+                            });
+                    },
+                });
+            });
+
+            function desligarFuncionario(checkbox) {
+                // Verifica se o checkbox está marcado
+                var checkbox_marcada = checkbox.checked;
+
+                // Obtém a matrícula da linha onde a checkbox foi marcada
+                var matriculaDaLinha = checkbox.closest('tr').querySelector('td:nth-child(3)').textContent.trim();
+
+                // Aqui você pode ajustar a URL de acordo com a rota Flask correta
+                var url = "/funcionario_desligado";
+
+                // Dados a serem enviados para o Flask
+                var data = {
+                    matriculaDaLinha: matriculaDaLinha,
+                    checkbox_marcada: checkbox_marcada
+                };
+
+                // Configuração da requisição AJAX
+                var xhr = new XMLHttpRequest();
+                xhr.open("POST", url, true);
+                xhr.setRequestHeader("Content-Type", "application/json");
+
+                // Função de callback
+                xhr.onload = function () {
+                    if (xhr.status === 200) {
+                        var resultado = JSON.parse(xhr.responseText);
+                        console.log(resultado.status);
+                        verificarEstadoDesligado();
+                    } else {
+                        console.error("Erro ao processar requisição:", xhr.statusText);
+                    }
+                };
+
+                // Envia a requisição
+                xhr.send(JSON.stringify(data));
+            }
+        </script>
+
+    </div>
+
+
+    <script>
+        function Colaboradores() {
+            axios.get('/colaboradores')
+                .then(response => {
+                    const col = response.data;
+                    const tableBody = document.getElementById('table-body');
+                    let html = '';
+
+                    for (let i = 0; i < col.length; i++) {
+                        const registro = col[i];
+                        html += `<tr>
+                                      <td>${registro['Nome']}</td>
+                                      <td>${registro['Sobrenome']}</td>
+                                      <td>${registro['Matricula']}</td>
+                                      <td>${registro['SetorCC']}</td>
+                                      <td>${registro['CC']}</td>
+                                      <td>${registro['E_mail']}</td>
+                                      <td>${registro['Turno']}</td>
+                                      <td>${registro['Numero_Telefone']}</td>
+                                      <td>${registro['Modelo_Celular']}</td>
+                                      <td>${registro['Celular_Empresarial']}</td>
+                                      <td>${registro['Nome_Maquina']}</td>
+                                      <td>${registro['Maquina_SN']}</td>
+                                      <td>${registro['Nome_Monitor']}</td>
+                                      <td>${registro['Monitor_SN']}</td>
+                                      <td>${registro['MAC_Ethernet']}</td>
+                                      <td>${registro['MAC_WiFi']}</td>
+                                      <td>${registro['Instalacao']}</td>
+                                      <td>${registro['Anydesk']}</td>
+                                      <td>${registro['Maquina_Antiga']}</td>
+                                      <td>${registro['SN_Antiga']}</td>
+                                      <td>${registro['Locados']}</td>
+                                      <td>${registro['Fabricante']}</td>
+                                      <td>${registro['Modelo']}</td>
+                                      <td>${registro['RAM']}</td>
+                                      <td>${registro['Planta']}</td>
+                                  </tr>`;
+                    }
+
+                    tableBody.innerHTML = html;
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        }   
+    </script>
+
+
+    <!-- ---- E D I Ç Ã O ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- -->
+
+    <form action="" method="post" id="adicionar_form" class="formulario">
+        <div class="popup" id="editfunc">
+            <div class="modal">
+                <button class="fechar" hidden>X</button>
+                <div class="questionario">
+                    <label for="matriculaedit" hidden>Matrícula:</label>
+                    <input type="text" id="matriculaedit" placeholder="Insira a Matricula" autocomplete="off" hidden>
+                    <input type="text" id="nomeMatriculaEdit" autocomplete="off" hidden>
+                    <input type="text" id="sobrenomeMatriculaEdit" autocomplete="off" hidden>
+                </div>
+                <div class="questionario">
+                    <button type="button" id="buscar" hidden>Buscar</button>
+                </div>
+
+                <br><br>
+
+                <form action="">
+                    <label class="icon" for="nome_edit"><i class="bi bi-person-vcard-fill"></i></label>
+                    <input type="text" name="nome_edit" id="nome_edit" placeholder="Nome" autocomplete="off">
+
+                    <label class="icon" for="sobrenome_edit"><i class="bi bi-person-vcard-fill"></i></label>
+                    <input type="text" name="sobrenome_edit" id="sobrenome_edit" placeholder="Sobrenome"
+                        autocomplete="off">
+
+                    <label class="icon" for="matricula_edit"><i class="bi bi-person-badge"></i></label>
+                    <input type="text" name="matricula_edit" id="matricula_edit" placeholder="matricula"
+                        autocomplete="off">
+
+                    <label class="icon" for="setor_edit"><i class="bi bi-geo-alt-fill"></i></label>
+                    <input type="text" id="setor_edit" name="setor_edit" required placeholder="CC / Setor"
+                        autocomplete="off" list="listaCC" autocomplete="off">
+                    <datalist id="listaCC">
+                        <option value="H021 - COASTING"></option>
+                        <option value="H084 - MELHORIA CONTINUA"></option>
+                        <option value="P020 - DIREÇÃO GERAL"></option>
+                        <option value="P080 - CONTROLADORIA"></option>
+                        <option value="P040 - COMPRAS"></option>
+                        <option value="H031 - INFORMATICA"></option>
+                        <option value="P090 - RECURSOS HUMANOS"></option>
+                        <option value="H091 - SERVIÇOS GERAIS"></option>
+                        <option value="H118 - COMERCIAL"></option>
+                        <option value="P100 - MANUTENÇÃO"></option>
+                        <option value="P060 - QUALIDADE"></option>
+                        <option value="H105 - ENGENHARIA DE PROJETOS"></option>
+                        <option value="P070 - ENGENHARIA PROCESSO E PRODUTO"></option>
+                        <option value="P050 - LOGISTICA"></option>
+                        <option value="P031 - INJEÇÃO"></option>
+                        <option value="P033 - PINTURA"></option>
+                        <option value="P032 - MONTAGEM"></option>
+                    </datalist>
+
+                    <datalist id="listaSAB">
+                        <option value="33000 - ADMINISTRATIVO / FINANCEIRO"></option>
+                        <option value="16010 - BANCADA"></option>
+                        <option value="18010 - CAM"></option>
+                        <option value="32000 - COMERCIAL"></option>
+                        <option value="14010 - CONVENCIONAIS"></option>
+                        <option value="14010 - CONVENCIONAIS"></option>
+                        <option value="31000 - DIRECAO GERAL"></option>
+                        <option value="21000 - DIRECAO INDUSTRIAL"></option>
+                        <option value="26000 - DISTRIBUICAO E SUPRIMENTOS"></option>
+                        <option value="15010 - ELETRO-EROSAO"></option>
+                        <option value="22000 - ENGENHARIA"></option>
+                        <option value="11000 - FRESADORAS"></option>
+                        <option value="36000 - INSTALACOES ADMINISTRATIVAS"></option>
+                        <option value="27000 - INSTALACOES FABRIS"></option>
+                        <option value="24000 - MANUTENCAO"></option>
+                        <option value="17010 - METROLOGIA"></option>
+                        <option value="16030 - POLIMENTO"></option>
+
+                        <option value="19010 - PROJETO"></option>
+                        <option value="34000 - RECURSOS HUMANOS"></option>
+                        <option value="35000 - SISTEMAS DE INFORMACAO"></option>
+                    </datalist>
+
+                    <label class="icon" for="email_edit"><i class="bi bi-envelope-at-fill"></i></label>
+                    <input type="text" name="email_edit" id="email_edit" placeholder="E-mail" autocomplete="off">
+
+                    <label class="icon" for="turno_edit"><i class="bi bi-clock-fill"></i></label>
+                    <input type="text" name="turno_edit" id="turno_edit" placeholder="Turno" autocomplete="off"
+                        list="listaTurnos">
+                    <datalist id="listaTurnos">
+                        <option value="1º Turno"></option>
+                        <option value="2º Turno"></option>
+                        <option value="3º Turno"></option>
+                        <option value="ADM"></option>
+                    </datalist>
+
+                    <label class="icon" for="celular_empresarial_edit"><i class="bi bi-phone"></i></label>
+                    <input type="text" name="celular_empresarial_edit" id="celular_empresarial_edit"
+                        placeholder="Celular Empresarial" autocomplete="off">
+
+                    <label class="icon" for="modelo_celular_edit"><i class="bi bi-phone-fill"></i></label>
+                    <input type="text" name="modelo_celular_edit" id="modelo_celular_edit"
+                        placeholder="Modelo de Celular" autocomplete="off">
+
+                    <label class="icon" for="numero_telefone_edit"><i class="bi bi-telephone-fill"></i></label>
+                    <input type="text" name="numero_telefone_edit" id="numero_telefone_edit"
+                        placeholder="Número de Telefone" autocomplete="off">
+
+                    <label class="icon" for="imei_edit"><i class="bi bi-phone"></i></label>
+                    <input type="text" name="imei_edit" id="imei_edit" placeholder="IMEI" autocomplete="off">
+
+                    <label class="icon" for="celular_sn_edit"><i class="bi bi-123"></i></label>
+                    <input type="text" name="celular_sn_edit" id="celular_sn_edit" placeholder="S/N Celular"
+                        autocomplete="off">
+
+                    <label class="icon" for="nome_maquina_edit"><i class="bi bi-laptop"></i></label>
+                    <input type="text" name="nome_maquina_edit" id="nome_maquina_edit" placeholder="Nome da Máquina"
+                        autocomplete="off">
+
+                    <label class="icon" for="maquina_sn_edit"><i class="bi bi-123"></i></label>
+                    <input type="text" name="maquina_sn_edit" id="maquina_sn_edit" placeholder="Máquina S/N"
+                        autocomplete="off">
+
+                    <label class="icon" for="nome_monitor_edit"><i class="bi bi-display"></i></label>
+                    <input type="text" name="nome_monitor_edit" id="nome_monitor_edit" placeholder="Nome do Monitor"
+                        autocomplete="off">
+
+                    <label class="icon" for="monitor_sn_edit"><i class="bi bi-123"></i></label>
+                    <input type="text" name="monitor_sn_edit" id="monitor_sn_edit" placeholder="Monitor S/N"
+                        autocomplete="off">
+
+                    <label class="icon" for="mac_ethernet_edit"><i class="bi bi-ethernet"></i></label>
+                    <input type="text" name="mac_ethernet_edit" id="mac_ethernet_edit" placeholder="MAC Ethernet"
+                        autocomplete="off">
+
+                    <label class="icon" for="mac_wifi_edit"><i class="bi bi-wifi"></i></label>
+                    <input type="text" name="mac_wifi_edit" id="mac_wifi_edit" placeholder="MAC WiFi"
+                        autocomplete="off">
+
+                    <label class="icon" for="instalacao_edit"><i class="bi bi-calendar-week-fill"></i></label>
+                    <input type="text" name="instalacao_edit" id="instalacao_edit" placeholder="Instalação"
+                        autocomplete="off">
+
+                    <label class="icon" for="anydesk_edit"><i class="bi bi-layers-half"></i></label>
+                    <input type="text" name="anydesk_edit" id="anydesk_edit" placeholder="Anydesk" autocomplete="off">
+
+                    <label class="icon" for="maquina_antiga_edit"><i class="bi bi-pc-display"></i></label>
+                    <input type="text" name="maquina_antiga_edit" id="maquina_antiga_edit" placeholder="Máquina Antiga"
+                        autocomplete="off">
+
+                    <label class="icon" for="sn_antiga_edit"><i class="bi bi-123"></i></label>
+                    <input type="text" name="sn_antiga_edit" id="sn_antiga_edit" placeholder="S/N Antiga"
+                        autocomplete="off">
+
+                    <label class="icon" for="locados_edit"><i class="bi bi-house-fill"></i></label>
+                    <input type="text" name="locados_edit" id="locados_edit" placeholder="Locados" autocomplete="off">
+
+                    <label class="icon" for="fabricante_edit"><i class="bi bi-buildings"></i></label>
+                    <input type="text" name="fabricante_edit" id="fabricante_edit" placeholder="Fabricante"
+                        autocomplete="off">
+
+                    <label class="icon" for="modelo_edit"><i class="bi bi-cpu-fill"></i></label>
+                    <input type="text" name="modelo_edit" id="modelo_edit" placeholder="Modelo" autocomplete="off">
+
+                    <label class="icon" for="ram_edit"><i class="bi bi-memory"></i></label>
+                    <input type="text" name="ram_edit" id="ram_edit" placeholder="RAM" autocomplete="off">
+
+                    <label class="icon" for="planta_edit"><i class="bi bi-buildings-fill"></i></label>
+                    <input type="text" name="planta_edit" id="planta_edit" placeholder="Planta" autocomplete="off">
+                </form>
+
+                <div class="questionario">
+                    <input type="submit" value="Editar" id="editarbutton" class="demaisbutton">
+                </div>
+            </div>
+        </div>
+    </form>
+    <script>
+        let matriculaDaLinha;
+    </script>
+
+    <script>
+        window.addEventListener('DOMContentLoaded', (event) => {
+            const abrirButtons = document.querySelectorAll('.editar');
+            const modal = document.querySelector('#editfunc');
+            const fechar = document.querySelector('.fechar');
+
+            abrirButtons.forEach(abrirButton => {
+                abrirButton.addEventListener('click', function () {
+                    const matriculaEditInput = document.getElementById('matriculaedit');
+                    const nomeMatriculaEdit = document.getElementById('nomeMatriculaEdit');
+                    const sobrenomeMatriculaEdit = document.getElementById('sobrenomeMatriculaEdit');
+
+                    const linhaDaTabela = abrirButton.closest('tr');
+
+                    if (linhaDaTabela) {
+                        const nomeDaLinha = linhaDaTabela.querySelector('td:nth-child(1)').textContent;
+                        const sobrenomeDaLinha = linhaDaTabela.querySelector('td:nth-child(2)').textContent;
+                        const matriculaDaLinha = linhaDaTabela.querySelector('td:nth-child(3)').textContent;
+
+                        if (matriculaDaLinha.trim() !== "") {
+                            matriculaEditInput.value = matriculaDaLinha;
+                            nomeMatriculaEdit.value = nomeDaLinha;
+                            sobrenomeMatriculaEdit.value = sobrenomeDaLinha;
+
+                            buscarDados();
+                        } else {
+                            console.log(matriculaDaLinha)
+                            console.log(nomeDaLinha)
+                            console.log(sobrenomeDaLinha)
+                            console.error('Matrícula inválida.');
+                        }
+                    } else {
+                        console.error('Não há linha associada ao botão.');
+                    }
+                    modal.style.display = 'flex';
+                });
+            });
+
+            fechar.addEventListener('click', function () {
+                modal.style.display = 'none';
+            });
+
+            window.addEventListener('click', function (e) {
+                if (e.target == modal) {
+                    modal.style.display = 'none';
+                }
+            });
+        });
+    </script>
+
+
+    <!-- editar os dados do colaborador -->
+
+    <script>
+        function recarregar() {
+            window.location.reload();
+        }
+
+        document.getElementById("buscar").addEventListener("click", buscarDados);
+
+        function buscarDados() {
+            var matriculaedit = document.getElementById("matriculaedit").value;
+            var nomeMatriculaEdit = document.getElementById("nomeMatriculaEdit").value;
+            var sobrenomeMatriculaEdit = document.getElementById("sobrenomeMatriculaEdit").value;
+
+            fetch("/buscar_col", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                },
+                body: JSON.stringify({
+                    nomeMatriculaEdit: nomeMatriculaEdit,
+                    sobrenomeMatriculaEdit: sobrenomeMatriculaEdit,
+                }),
+            })
+                .then((response) => response.json())
+                .then((data) => {
+                    document.getElementById("nome_edit").value = data.nome_edit;
+                    document.getElementById("sobrenome_edit").value = data.sobrenome_edit;
+                    document.getElementById("matricula_edit").value = data.matricula_edit;
+                    document.getElementById("setor_edit").value = data.setor_edit;
+                    document.getElementById("email_edit").value = data.email_edit;
+                    document.getElementById("turno_edit").value = data.turno_edit;
+                    document.getElementById("numero_telefone_edit").value = data.numero_telefone_edit;
+                    document.getElementById("modelo_celular_edit").value = data.modelo_celular_edit;
+                    document.getElementById("celular_empresarial_edit").value = data.celular_empresarial_edit;
+                    document.getElementById("imei_edit").value = data.imei_edit;
+                    document.getElementById("celular_sn_edit").value = data.celular_sn_edit;
+                    document.getElementById("nome_maquina_edit").value = data.nome_maquina_edit;
+                    document.getElementById("maquina_sn_edit").value = data.maquina_sn_edit;
+                    document.getElementById("nome_monitor_edit").value = data.nome_monitor_edit;
+                    document.getElementById("monitor_sn_edit").value = data.monitor_sn_edit;
+                    document.getElementById("mac_ethernet_edit").value = data.mac_ethernet_edit;
+                    document.getElementById("mac_wifi_edit").value = data.mac_wifi_edit;
+                    document.getElementById("instalacao_edit").value = data.instalacao_edit;
+                    document.getElementById("anydesk_edit").value = data.anydesk_edit;
+                    document.getElementById("maquina_antiga_edit").value = data.maquina_antiga_edit;
+                    document.getElementById("sn_antiga_edit").value = data.sn_antiga_edit;
+                    document.getElementById("locados_edit").value = data.locados_edit;
+                    document.getElementById("fabricante_edit").value = data.fabricante_edit;
+                    document.getElementById("modelo_edit").value = data.modelo_edit;
+                    document.getElementById("ram_edit").value = data.ram_edit;
+                    document.getElementById("planta_edit").value = data.planta_edit;
+
+                    const modal = document.querySelector('#editfunc');
+                    modal.style.display = 'flex';
+                })
+                .catch((error) => {
+                    console.error("Erro:", error);
+                });
+        }
+
+        document.getElementById("editarbutton").addEventListener("click", function (e) {
+            e.preventDefault();
+
+            var matriculaaeditar = document.getElementById("matriculaedit").value;
+            var nome_edit = document.getElementById("nome_edit").value;
+            var sobrenome_edit = document.getElementById("sobrenome_edit").value;
+            var matricula_edit = document.getElementById("matricula_edit").value;
+            var setor_edit = document.getElementById("setor_edit").value;
+            var email_edit = document.getElementById("email_edit").value;
+            var turno_edit = document.getElementById("turno_edit").value;
+            var numero_telefone_edit = document.getElementById("numero_telefone_edit").value;
+            var modelo_celular_edit = document.getElementById("modelo_celular_edit").value;
+            var celular_empresarial_edit = document.getElementById("celular_empresarial_edit").value;
+            var imei_edit = document.getElementById("email_edit").value;
+            var celular_sn_edit = document.getElementById("celular_sn_edit").value;
+            var nome_maquina_edit = document.getElementById("nome_maquina_edit").value;
+            var maquina_sn_edit = document.getElementById("maquina_sn_edit").value;
+            var nome_monitor_edit = document.getElementById("nome_monitor_edit").value;
+            var monitor_sn_edit = document.getElementById("monitor_sn_edit").value;
+            var mac_ethernet_edit = document.getElementById("mac_ethernet_edit").value;
+            var mac_wifi_edit = document.getElementById("mac_wifi_edit").value;
+            var instalacao_edit = document.getElementById("instalacao_edit").value;
+            var anydesk_edit = document.getElementById("anydesk_edit").value;
+            var maquina_antiga_edit = document.getElementById("maquina_antiga_edit").value;
+            var sn_antiga_edit = document.getElementById("sn_antiga_edit").value;
+            var locados_edit = document.getElementById("locados_edit").value;
+            var fabricante_edit = document.getElementById("fabricante_edit").value;
+            var modelo_edit = document.getElementById("modelo_edit").value;
+            var ram_edit = document.getElementById("ram_edit").value;
+            var planta_edit = document.getElementById("planta_edit").value;
+
+            fetch('/edit_colaborador', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    nome_edit: nome_edit,
+                    sobrenome_edit: sobrenome_edit,
+                    matricula_edit: matricula_edit,
+                    setor_edit: setor_edit,
+                    email_edit: email_edit,
+                    turno_edit: turno_edit,
+                    numero_telefone_edit: numero_telefone_edit,
+                    modelo_celular_edit: modelo_celular_edit,
+                    celular_empresarial_edit: celular_empresarial_edit,
+                    imei_edit: imei_edit,
+                    celular_sn_edit: celular_sn_edit,
+                    nome_maquina_edit: nome_maquina_edit,
+                    maquina_sn_edit: maquina_sn_edit,
+                    nome_monitor_edit: nome_monitor_edit,
+                    monitor_sn_edit: monitor_sn_edit,
+                    mac_ethernet_edit: mac_ethernet_edit,
+                    mac_wifi_edit: mac_wifi_edit,
+                    instalacao_edit: instalacao_edit,
+                    anydesk_edit: anydesk_edit,
+                    maquina_antiga_edit: maquina_antiga_edit,
+                    sn_antiga_edit: sn_antiga_edit,
+                    locados_edit: locados_edit,
+                    fabricante_edit: fabricante_edit,
+                    modelo_edit: modelo_edit,
+                    ram_edit: ram_edit,
+                    planta_edit: planta_edit,
+                    matriculaaeditar: matriculaaeditar,
+                })
+            })
+                .then(function (response) {
+                    if (response.ok) {
+                        return response.json();
+                    }
+                    throw new Error('Erro na resposta do servidor.');
+                })
+                .then(function (data) {
+                    alert(data.status);
+                    recarregar();
+                })
+                .catch(function (error) {
+                    console.error('Erro:', error);
+                });
+        });
+    </script>
+
+
+    <!-- ---- USUARIOS ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------- -->
+
+    <script>
+        if (privilegios == 'Usuário comum') {
+            // Obtém todos os elementos com a classe "editarTH" e "desligadoTH" e itera sobre eles
+            var editarTH = document.getElementsByClassName("editarTH");
+            for (var i = 0; i < editarTH.length; i++) {
+                editarTH[i].style.display = "none"; // Define o estilo display para "none"
+            }
+
+            var desligadoTH = document.getElementsByClassName("desligadoTH");
+            for (var i = 0; i < desligadoTH.length; i++) {
+                desligadoTH[i].style.display = "none"; // Define o estilo display para "none"
+            }
+
+            var plantahist = document.getElementsByClassName("plantahist");
+            for (var i = 0; i < plantahist.length; i++) {
+                plantahist[i].style.display = "none"; // Define o estilo display para "none"
+            }
+
+            var editarButton = document.getElementsByClassName("editarButton");
+            for (var i = 0; i < editarButton.length; i++) {
+                editarButton[i].style.display = "none"; // Define o estilo display para "none"
+            }
+
+            // Obtém todos os elementos com a classe "editar" e "desligar" e itera sobre eles
+            var editar = document.getElementsByClassName("editar");
+            for (var i = 0; i < editar.length; i++) {
+                editar[i].style.display = "none"; // Define o estilo display para "none"
+            }
+
+            var desligar = document.getElementsByClassName("desligar");
+            for (var i = 0; i < desligar.length; i++) {
+                desligar[i].style.display = "none"; // Define o estilo display para "none"
+            }
+
+            // Seleciona o elemento com o id "editfunc" e define o estilo display para "none"
+            var editfunc = document.querySelector('#editfunc');
+            editfunc.style.display = 'none';
+        } else {
+            console.log('Usuário comum');
+        }
+    </script>
+
+
+</body>
+
+</html>

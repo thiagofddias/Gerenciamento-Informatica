@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="/static/CSS/principal.css">
+    <link rel="stylesheet" href="/static/css/colaboradores.css">
+    <!-- jQuery -->
+    <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+
+    <!-- DataTables CSS -->
+    <link rel="stylesheet" type="text/css" href="https://cdn.datatables.net/1.11.5/css/jquery.dataTables.min.css">
+
+    <!-- DataTables JS -->
+    <script src="https://cdn.datatables.net/1.11.5/js/jquery.dataTables.min.js"></script>
+
+    <!-- DataTables FixedHeader CSS -->
+    <link rel="stylesheet" type="text/css"
+        href="https://cdn.datatables.net/fixedheader/3.2.0/css/fixedHeader.dataTables.min.css">
+
+    <!-- DataTables FixedHeader JS -->
+    <script src="https://cdn.datatables.net/fixedheader/3.2.0/js/dataTables.fixedHeader.min.js"></script>
+
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
+    <script>
+        var planta = "{{ session['planta'] }}";
+    </script>
+    <script src="{{ url_for('static', filename='cores.js') }}"></script>
+    <link rel="icon" href="/static/images/logo.ico">
+    <title>Colaboradores</title>
+</head>
+
+<body>
+    <div class="menu">
+        <i><img src="/static/images/return.png" alt="" id="retorna"></i>
+        <a href="/menu_comum" class="logo"><img src="#" alt="" id="logo_image"></a>
+
+        <div class="icones_menu">
+            <a href="" id="retornaLink">Retornar</a>
+        </div>
+
+        <script>
+            const retorna = document.getElementById("retornaLink");
+            retorna.addEventListener("click", function (event) {
+                event.preventDefault();
+                window.history.back();
+            });
+        </script>
+    </div>
+
+    <br><br>
+
+    <div id="tabela">
+
+        <table id="tableColab">
+            <thead class="fixed-header">
+                <tr>
+                    <th>Nome</th>
+                    <th>Sobrenome</th>
+                    <th>Matricula</th>
+                    <th>Setor / CC</th>
+                    <th>E-mail</th>
+                    <th>Turno</th>
+                    <th>Número Telefone</th>
+                    <th>Modelo Celular</th>
+                    <th>Celular Empresarial</th>
+                    <th>Nome Máquina</th>
+                    <th>Máquina S/N</th>
+                    <th>Nome Monitor</th>
+                    <th>Monitor S/N</th>
+                    <th style="padding-left: 60px !important; padding-right: 60px !important;">MAC Ethernet</th>
+                    <th style="padding-left: 60px !important; padding-right: 60px !important;">MAC WiFi</th>
+                    <th>Instalação</th>
+                    <th>Anydesk</th>
+                    <th>Máquina Antiga</th>
+                    <th>S/N Antiga</th>
+                    <th>Locados</th>
+                    <th>Fabricante</th>
+                    <th style="padding-left: 40px !important; padding-right: 40px !important;">Modelo</th>
+                    <th>RAM</th>
+                    <th hidden class="plantahist">Planta</th>
+                    <th>Editar</th>
+                </tr>
+            </thead>
+            <tbody id="table-body">
+                {% for registro in col %}
+                <tr>
+                    <td>{{ registro.Nome }}</td>
+                    <td>{{ registro.Sobrenome }}</td>
+                    <td>{{ registro.Matricula }}</td>
+                    <td>{{ registro.SetorCC }}</td>
+                    <td>{{ registro.E_mail }}</td>
+                    <td>{{ registro.Turno }}</td>
+                    <td>{{ registro.Numero_Telefone }}</td>
+                    <td>{{ registro.Modelo_Celular }}</td>
+                    <td>{{ registro.Celular_Empresarial }}</td>
+                    <td>{{ registro.Nome_Maquina }}</td>
+                    <td>{{ registro.Maquina_SN }}</td>
+                    <td>{{ registro.Nome_Monitor }}</td>
+                    <td>{{ registro.Monitor_SN }}</td>
+                    <td>{{ registro.MAC_Ethernet }}</td>
+                    <td>{{ registro.MAC_WiFi }}</td>
+                    <td>{{ registro.Instalacao }}</td>
+                    <td>{{ registro.Anydesk }}</td>
+                    <td>{{ registro.Maquina_Antiga }}</td>
+                    <td>{{ registro.SN_Antiga }}</td>
+                    <td>{{ registro.Locados }}</td>
+                    <td>{{ registro.Fabricante }}</td>
+                    <td>{{ registro.Modelo }}</td>
+                    <td>{{ registro.RAM }}</td>
+                    <td hidden class="plantahist">{{ registro.Planta }}</td>
+                    <td>
+                        <button class="editar">
+                            <i class="bi bi-pencil-square"></i>
+                        </button>
+                    </td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+
+        <script>
+            $(document).ready(function () {
+
+                verificarEstadoDesligado();
+
+                function verificarEstadoDesligado() {
+                    // Seleciona todas as linhas da tabela
+                    var linhas = document.querySelectorAll('tbody tr');
+                    // Itera sobre as linhas da tabela
+                    linhas.forEach(function (linha) {
+                        // Obtém a matrícula da linha
+                        var matriculaDaLinha = linha.querySelector('td:nth-child(3)').textContent.trim();
+                        // Faz uma chamada AJAX para obter o estado da coluna "desligados" para esta matrícula
+                        $.ajax({
+                            url: '/obter_estado_desligado',
+                            type: 'POST',
+                            contentType: 'application/json',
+                            data: JSON.stringify({ matriculaDaLinha: matriculaDaLinha }),
+                            success: function (response) {
+                                // Verifica se o estado da coluna "desligados" é "sim" e aplica a formatação necessária
+                                if (response.desligados.toLowerCase() === 'sim') {
+                                    linha.style.backgroundColor = 'red';
+                                    linha.style.fontWeight = 'bold';
+                                    linha.style.color = '#fff';
+                                    linha.querySelector('td:nth-child(26) input').checked = true;
+                                }
+                            },
+                            error: function (error) {
+                                console.log(error);
+                            }
+                        });
+                    });
+                }
+
+
+                $('#tableColab thead tr')
+                    .clone(true)
+                    .addClass('filters')
+                    .appendTo('#tableColab thead');
+
+                var table = $('#tableColab').DataTable({
+                    orderCellsTop: true,
+                    fixedHeader: false,
+                    initComplete: function () {
+                        var api = this.api();
+
+                        // For each column
+                        api
+                            .columns()
+                            .eq(0)
+                            .each(function (colIdx) {
+                                // Set the header cell to contain the input element
+                                var cell = $('.filters th').eq(
+                                    $(api.column(colIdx).header()).index()
+                                );
+                                var title = $(cell).text();
+                                $(cell).html('<input type="text" placeholder="' + title + '" />');
+
+                                // On every keypress in this input
+                                $('input', $('.filters th').eq($(api.column(colIdx).header()).index()))
+                                    .off('keyup change')
+                                    .on('change', function (e) {
+                                        // Get the search value
+                                        $(this).attr('title', $(this).val());
+                                        var regexr = '({search})'; //$(this).parents('th').find('select').val();
+
+                                        var cursorPosition = this.selectionStart;
+                                        // Search the column for that value
+                                        api
+                                            .column(colIdx)
+                                            .search(
+                                                this.value != ''
+                                                    ? regexr.replace('{search}', '(((' + this.value + ')))')
+                                                    : '',
+                                                this.value != '',
+                                                this.value == ''
+                                            )
+                                            .draw();
+                                    })
+                                    .on('keyup', function (e) {
+                                        e.stopPropagation();
+
+                                        $(this).trigger('change');
+                                        $(this)
+                                            .focus()[0]
+                                            .setSelectionRange(cursorPosition, cursorPosition);
+                                    });
+                            });
+                    },
+                });
+            });
+
+
+        </script>
+    </div>
+
+    <script>
+        function highlightRow(element) {
+            var parentRow = element.parentNode.parentNode;
+            var checkbox_marcada = element.checked; // Captura o estado da checkbox
+            if (element.checked) {
+                parentRow.style.backgroundColor = 'red';
+                parentRow.style.fontWeight = 'bold';
+                parentRow.style.color = '#fff';
+            } else {
+                parentRow.style.backgroundColor = '';
+                parentRow.style.fontWeight = '';
+                parentRow.style.color = '';
+            }
+
+            var matriculaDaLinha = parentRow.querySelector('td:nth-child(3)').textContent.trim();
+
+            console.log(matriculaDaLinha);
+            $.ajax({
+                url: '/funcionario_desligado',
+                type: 'POST',
+                contentType: 'application/json',
+                data: JSON.stringify({ matriculaDaLinha: matriculaDaLinha, checkbox_marcada: checkbox_marcada }), // Passa o estado da checkbox
+                success: function (response) {
+                    console.log(response);
+                },
+                error: function (error) {
+                    console.log(error);
+                }
+            });
+        }
+    </script>
+
+
+    <script>
+        function Colaboradores() {
+            axios.get('/colaboradores')
+                .then(response => {
+                    const col = response.data;
+                    const tableBody = document.getElementById('table-body');
+                    let html = '';
+
+                    for (let i = 0; i < col.length; i++) {
+                        const registro = col[i];
+                        html += `<tr>
+                                      <td>${registro['Nome']}</td>
+                                      <td>${registro['Sobrenome']}</td>
+                                      <td>${registro['Matricula']}</td>
+                                      <td>${registro['Setor']}</td>
+                                      <td>${registro['CC']}</td>
+                                      <td>${registro['E_mail']}</td>
+                                      <td>${registro['Turno']}</td>
+                                      <td>${registro['Numero_Telefone']}</td>
+                                      <td>${registro['Modelo_Celular']}</td>
+                                      <td>${registro['Celular_Empresarial']}</td>
+                                      <td>${registro['Nome_Maquina']}</td>
+                                      <td>${registro['Maquina_SN']}</td>
+                                      <td>${registro['Nome_Monitor']}</td>
+                                      <td>${registro['Monitor_SN']}</td>
+                                      <td>${registro['MAC_Ethernet']}</td>
+                                      <td>${registro['MAC_WiFi']}</td>
+                                      <td>${registro['Instalacao']}</td>
+                                      <td>${registro['Anydesk']}</td>
+                                      <td>${registro['Maquina_Antiga']}</td>
+                                      <td>${registro['SN_Antiga']}</td>
+                                      <td>${registro['Locados']}</td>
+                                      <td>${registro['Fabricante']}</td>
+                                      <td>${registro['Modelo']}</td>
+                                      <td>${registro['RAM']}</td>
+                                  </tr>`;
+                    }
+
+                    tableBody.innerHTML = html;
+                })
+                .catch(error => {
+                    console.error(error);
+                });
+        }   
+    </script>
+    </table>
+    </div>
+
+</body>
+
+</html>

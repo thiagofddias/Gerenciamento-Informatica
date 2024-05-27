@@ -1,0 +1,32 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="icon" href="/static/images/logo.ico">
+    <link rel="stylesheet" href="/static/CSS/login.css">
+    <script>
+        var planta = "{{ session['planta'] }}";
+    </script>
+    <script src="{{ url_for('static', filename='cores.js') }}"></script>
+    <title>Login</title>
+    </style>
+</head>
+<body>
+    <div class="linha">
+    </div>
+
+    <div>
+        <br><br><br>
+        <form action="/login" method="post" onsubmit="return validarLogin()">
+            <input type="text" name="login" id="login" placeholder="Matrícula" autocomplete="off">
+            <input type="password" name="senha" id="senha" placeholder="Senha" autocomplete="off">
+            <br><br>
+            <button id="entrar" class="button" value="/pagina_protegida">Entrar</button>
+        </form>
+    </div>
+
+</body>
+</html>
+
+
