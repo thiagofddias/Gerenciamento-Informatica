@@ -1,0 +1,145 @@
+div.modal {
+    background-color: #dfe3ed;
+    padding: 1rem;
+    margin: 1rem;
+    border-radius: 0.5rem;
+    width: 60%;
+    text-align: center;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    border: 2px solid #012269;
+}
+
+div#cadastro {
+    border: 3px solid #012269;
+    box-shadow: 0 0 1rem rgba(0, 0, 0, 0.2);
+}
+
+.formulario input {
+    width: 95%;
+    padding: 0.5rem;
+    margin: 0.5rem 0;
+    border-radius: 0.5rem;
+    border: 1px solid #ccc;
+    box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.2);
+}
+
+.formulario i {
+    float: left center;
+    margin: 0.5rem 0;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    background-color: #012269;
+    box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.2);
+    color: #fff;
+    width: 100px;
+}
+
+label.radio {
+    cursor: pointer;
+    text-indent: 35px;
+    overflow: visible;
+    display: inline-block;
+    position: relative;
+    margin-bottom: 30px;
+}
+
+label.radio:before {
+    background: #012269;
+    content: '';
+    position: absolute;
+    top: 2px;
+    left: 0;
+    width: 20px;
+    height: 20px;
+    border-radius: 100%;
+}
+
+label.radio:after {
+    opacity: 0;
+    content: '';
+    position: absolute;
+    width: 0.5em;
+    height: 0.25em;
+    background: transparent;
+    top: 7.5px;
+    left: 4.5px;
+    border: 3px solid #ffffff;
+    border-top: none;
+    border-right: none;
+
+    -webkit-transform: rotate(-45deg);
+    -moz-transform: rotate(-45deg);
+    -o-transform: rotate(-45deg);
+    -ms-transform: rotate(-45deg);
+    transform: rotate(-45deg);
+}
+
+input[type=radio]:checked+label:after {
+    opacity: 1;
+}
+
+input[type=radio] {
+    visibility: hidden;
+}
+
+.gender {
+    display: inline-flex;
+    justify-content: space-between;
+    border: none;
+}
+
+.btn {
+    background-color: #012269;
+    color: #fff;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    border: none;
+    cursor: pointer;
+    box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.2);
+    width: 50%;
+    margin-top: 15px;
+}
+
+.btn:hover {
+    background-color: #3a57af;
+}
+
+.fechar {
+    background: none;
+    border: none;
+    color: red;
+    cursor: pointer;
+}
+
+.fechar:hover {
+    color: #d62626;
+    transition: 0.5s;
+}
+
+.fechar i {
+    font-size: 2.3rem;
+}
+
+#apagar,
+#apagarCham {
+    background: none;
+    border: 2px solid red;
+    color: red;
+    cursor: pointer;
+    border-radius: 5px;
+    width: 100px;
+    height: 40px;
+    font-size: 1.0em;
+}
+
+#apagar:hover,
+#apagarCham:hover {
+    background-color: red;
+    color: #fff;
+    transition: 0.5s;
+}
+
+#removemodal p,
+#removecham p {
+    font-size: 1.5rem;
+}

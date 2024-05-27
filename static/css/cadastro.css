@@ -1,0 +1,132 @@
+/* POPUPS */
+
+.popup {
+    width: 100vw;
+    height: 100vh;
+    background: rgba(0, 10, 2, 0.849);
+    position: fixed;
+    top: 0px;
+    left: 0px;
+    z-index: 2000;
+    display: none;
+    justify-content: center;
+
+}
+
+.popup.mostrar {
+    background: rgba(0, 0, 0, 0.5);
+    display: flex;
+}
+
+.popup {
+    display: none;
+}
+
+.popup.mostrar {
+    display: block;
+}
+
+/* FIM DOS POPUPS */
+
+
+/* BOTÕES */
+
+div.modal {
+    background-color: #dfe3ed;
+    padding: 1rem;
+    margin: 1rem;
+    border-radius: 0.5rem;
+    width: 60%;
+    text-align: center;
+    font-family: 'Trebuchet MS', 'Lucida Sans Unicode', 'Lucida Grande', 'Lucida Sans', Arial, sans-serif;
+    overflow: auto;
+    box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.2);
+    border: 5px solid #012269;
+}
+
+div #modaldel {
+    height: 40%;
+    margin-top: 10%;
+}
+
+.formulario input {
+    width: 95%;
+    padding: 0.5rem;
+    margin: 0.5rem 0;
+    border-radius: 0.5rem;
+    border: 1px solid #ccc;
+    box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.2);
+}
+
+.formulario i {
+    float: left center;
+    margin: 0.5rem 0;
+    padding: 0.5rem;
+    border-radius: 0.5rem;
+    background-color: #012269;
+    box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.2);
+    color: #fff;
+    width: 100px;
+}
+
+.fechar {
+    background: none;
+    border: none;
+    color: red;
+    cursor: pointer;
+}
+
+.fechar:hover {
+    color: #d62626;
+    transition: 0.5s;
+}
+
+.fechar i {
+    font-size: 2.3rem;
+}
+
+.bi-layers-half::before {
+    content: "\f45a";
+    transform: rotate(90deg);
+}
+
+#cadastrar {
+    padding: 1.0rem;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.2);
+    margin-top: 10px;
+}
+
+#cadastrar:hover {
+    transition: 0.5s;
+}
+
+/* Deletar Usuário */
+
+#buscar_del {
+    padding: 1.0rem;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.2);
+    margin-top: 10px;
+}
+
+#buscar_del:hover {
+    transition: 0.5s;
+}
+
+#del {
+    padding: 1.0rem;
+    border: none;
+    border-radius: 0.5rem;
+    cursor: pointer;
+    box-shadow: 0 0 0.5rem rgba(0, 0, 0, 0.2);
+    margin-top: 10px;
+}
+
+#del:hover {
+    transition: 0.5s;
+}

@@ -1,0 +1,25 @@
+.botao{
+    margin-top: 3%;
+    width: 50%;
+    margin-left: 25%;
+}
+
+.botao:hover{
+    background-color: #012269;
+    color: white;
+}
+
+.botao#logout:hover{
+    background-color: #ff0000;
+    color: white;
+}
+
+#impressoras{
+    margin-top: 3%;
+    width: 50%;
+    margin-left: 25%;
+}
+
+#chamados{
+    margin-left: 25%;
+}

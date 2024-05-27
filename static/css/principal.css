@@ -1,0 +1,129 @@
+body {
+    background-color: #dfe3ed;
+    font-family: 'Roboto', sans-serif;
+    line-height: 1.5;
+    overflow-x: hidden;
+}
+
+.menu {
+    overflow: hidden;
+    background-color: #012269;
+    padding: 0px 10px;
+    margin: -1%;
+}
+
+.menu a {
+    margin-top: 0%;
+    width: 180px;
+    float: left;
+    color: white;
+    text-align: center;
+    padding: 5px;
+    text-decoration: none;
+    font-size: 16px;
+    line-height: 20px;
+    border-radius: 4px;
+    position: relative;
+    margin-left: 1%;
+}
+
+.menu a#ativar{
+    margin-top: 5%;
+}
+
+.menu a.logo {
+    font-size: 25px;
+    font-weight: bold;
+    width: 320px;
+}
+
+a.logo img {
+    width: 300px;
+    height: auto;
+    margin-top: 0%;
+    padding-top: 1px;
+}
+
+.menu a:hover {
+    background-color: #03a5fc;
+    color: white;
+}
+
+#retornaLink {
+    margin-top: 20px;
+}
+
+.icones_menu {
+    float: right;
+    margin-top: 0.9%;
+    height: 80px;
+    width: 200px;
+}
+
+#logo_image {
+    width: 300px;
+    margin-top: 5%;
+}
+
+.menu a.active {
+    background-color: dodgerblue;
+    color: white;
+}
+
+.menu-right {
+    float: right;
+}
+
+.ativar{
+    margin-top: 10px;
+}
+
+#retorna {
+    width: 1px;
+}
+
+
+/* Celulares */
+
+@media (min-width: 320px) and (max-width: 480px) {
+    .menu a {
+        float: center;
+        text-align: center;
+        line-height: 25px;
+        border-radius: 4px;
+        position: relative;
+        margin-left: 3%;
+    }
+
+    .menu {
+        overflow: hidden;
+        background-color: #012269;
+        padding: 0px 0px;
+    }
+
+    #logo_image {
+        width: 310px;
+    }
+
+    .icones_menu {
+        float: right;
+        margin-top: 1.5%;
+        margin-left: 27%;
+    }
+
+    #retorna {
+        margin-left: -300px;
+        position: fixed;
+        margin-top: 110px;
+        color: #fff;
+        width: 40px;
+        height: 40px;
+        filter: invert(100%);
+    }
+
+}
+
+
+/* Tablets */
+
+@media (min-width: 600px) and (max-width: 1025px) {}
